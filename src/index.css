@@ -47,33 +47,33 @@
 
 /* Theme 2: Leapy Claro (Light Variant of Suggested Palette) */
 .theme-slate-light {
-  --bg-body: #F4F7F8;
-  --bg-app: #F4F7F8;
+  --bg-body: #F8FAFC;
+  --bg-app: #F8FAFC;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #EBF0F2;
+  --bg-card-hover: #F1F5F9;
   --bg-header: #FFFFFF;
-  --bg-panel: #EBF0F2;
-  --border-main: #D0DDE1;
-  --border-muted: rgba(208, 221, 225, 0.5);
-  --text-main: #0B1114;
-  --text-muted: #64757D;
-  --text-highlight: #2A8EA8;
-  --accent-color: #2A8EA8;
-  --accent-alt: #2E8A63;
-  --warning-color: #B58428;
-  --accent-glow: rgba(42, 142, 168, 0.1);
+  --bg-panel: #F1F5F9;
+  --border-main: #CBD5E1;
+  --border-muted: #E2E8F0;
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-highlight: #0284C7;
+  --accent-color: #0284C7;
+  --accent-alt: #16A34A;
+  --warning-color: #D97706;
+  --accent-glow: rgba(14, 165, 233, 0.08);
 
-  --badge-success-bg: #d1fae5;
-  --badge-success-text: #065f46;
-  --badge-success-border: #a7f3d0;
+  --badge-success-bg: #DCFCE7;
+  --badge-success-text: #15803D;
+  --badge-success-border: #BBF7D0;
 
-  --badge-warning-bg: #fef3c7;
-  --badge-warning-text: #92400e;
-  --badge-warning-border: #fde68a;
+  --badge-warning-bg: #FEF3C7;
+  --badge-warning-text: #B45309;
+  --badge-warning-border: #FDE68A;
 
-  --badge-danger-bg: #fee2e2;
-  --badge-danger-text: #991b1b;
-  --badge-danger-border: #fecaca;
+  --badge-danger-bg: #FEE2E2;
+  --badge-danger-text: #B91C1C;
+  --badge-danger-border: #FCA5A5;
 }
 
 /* Theme 3: Norte Florestal (Nordic Night Variation with Custom Tokens) */

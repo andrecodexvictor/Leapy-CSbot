@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AuditLog, GraphNode } from '../types';
-import { Activity, Clock, ShieldAlert, CheckCircle, FileCode, Trash2, ArrowUpRight, Search, Server, Cpu, Database, Award, ThumbsUp, ThumbsDown, MessageSquare, X, ShieldCheck } from 'lucide-react';
+import { Activity, Clock, ShieldAlert, CheckCircle, FileCode, Trash2, ArrowUpRight, Search, Server, Cpu, Database, Award, ThumbsUp, ThumbsDown, MessageSquare, X, ShieldCheck, Printer } from 'lucide-react';
 
 interface AuditDashboardProps {
   logs: AuditLog[];
@@ -12,6 +12,380 @@ interface AuditDashboardProps {
 export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNode }: AuditDashboardProps) {
   const [filterQuery, setFilterQuery] = useState('');
   const [selectedLogForModal, setSelectedLogForModal] = useState<AuditLog | null>(null);
+
+  const handleExportPDF = (log: AuditLog) => {
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'fixed';
+    printFrame.style.right = '0';
+    printFrame.style.bottom = '0';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = '0';
+    document.body.appendChild(printFrame);
+
+    const blocks = (log as any).blocks || {};
+    const matchedDocsList = log.retrievedDocs.map(docId => {
+      const matchedNode = allNodes.find(n => n.type === 'document' && n.filename === docId) as any;
+      return {
+        id: docId,
+        topic: matchedNode?.topic || 'Playbook Geral',
+        content: matchedNode?.content || 'Conteúdo do artigo operacional da Leapy.'
+      };
+    });
+
+    const directConceptsList = log.matchedNodes.map(nodeId => {
+      const matched = allNodes.find(n => n.id === nodeId);
+      return {
+        id: nodeId,
+        title: matched?.title || nodeId,
+        description: (matched as any)?.description || 'Nó conceitual ativado.'
+      };
+    });
+
+    const isHigh = log.confidence === 'Alta';
+    const isMedium = log.confidence === 'Média';
+    const confidenceClass = isHigh ? 'badge-success' : isMedium ? 'badge-warning' : 'badge-danger';
+    
+    const risk = blocks.sinalizacaoRisco || 'Baixo';
+    const riskClass = risk === 'Alto' ? 'badge-danger' : risk === 'Médio' ? 'badge-warning' : 'badge-success';
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Dossiê de Auditoria Leapy - ${log.id}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+            body {
+              font-family: 'Inter', system-ui, -apple-system, sans-serif;
+              color: #0F172A;
+              background: #FFFFFF;
+              padding: 40px;
+              font-size: 12px;
+              line-height: 1.6;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .header {
+              border-bottom: 2px solid #0284C7;
+              padding-bottom: 16px;
+              margin-bottom: 24px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .brand {
+              font-size: 20px;
+              font-weight: 800;
+              color: #0284C7;
+              letter-spacing: -0.5px;
+            }
+            .subtitle {
+              font-size: 9px;
+              color: #64748B;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              margin-top: 2px;
+              font-weight: 600;
+            }
+            .doc-id {
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 10px;
+              background: #F1F5F9;
+              padding: 4px 8px;
+              border-radius: 4px;
+              color: #334155;
+              border: 1px solid #E2E8F0;
+            }
+            .section-title {
+              font-size: 10px;
+              font-weight: 700;
+              text-transform: uppercase;
+              color: #334155;
+              border-bottom: 1px solid #E2E8F0;
+              padding-bottom: 6px;
+              margin-top: 24px;
+              margin-bottom: 12px;
+              letter-spacing: 0.5px;
+            }
+            .query-box {
+              background: #F8FAFC;
+              border-left: 4px solid #0284C7;
+              padding: 12px 16px;
+              border-radius: 4px;
+              font-style: italic;
+              font-size: 12.5px;
+              color: #1E293B;
+              margin-bottom: 20px;
+            }
+            .grid-kpis {
+              display: grid;
+              grid-template-cols: repeat(4, 1fr);
+              gap: 12px;
+              margin-bottom: 24px;
+            }
+            .kpi-card {
+              background: #F8FAFC;
+              border: 1px solid #E2E8F0;
+              border-radius: 6px;
+              padding: 10px;
+            }
+            .kpi-label {
+              font-size: 8px;
+              color: #64748B;
+              text-transform: uppercase;
+              font-weight: 700;
+              letter-spacing: 0.5px;
+            }
+            .kpi-value {
+              font-size: 11px;
+              font-weight: 700;
+              color: #0F172A;
+              margin-top: 4px;
+            }
+            .badge {
+              display: inline-block;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 9px;
+              font-weight: 700;
+              text-transform: uppercase;
+              border: 1px solid transparent;
+            }
+            .badge-success { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
+            .badge-warning { background: #FEF3C7; color: #B45309; border-color: #FDE68A; }
+            .badge-danger { background: #FEE2E2; color: #B91C1C; border-color: #FCA5A5; }
+            
+            .content-block {
+              background: #FDFDFD;
+              border: 1px solid #E2E8F0;
+              border-radius: 6px;
+              padding: 14px;
+              margin-bottom: 16px;
+            }
+            .content-header {
+              font-size: 9px;
+              font-weight: 700;
+              text-transform: uppercase;
+              color: #64748B;
+              margin-bottom: 6px;
+              letter-spacing: 0.5px;
+            }
+            .content-text {
+              font-size: 11.5px;
+              color: #0F172A;
+              line-height: 1.5;
+            }
+            .highlight-box {
+              background: #F0F9FF;
+              border: 1px solid #B9E6FE;
+              border-radius: 6px;
+              padding: 14px;
+              margin-bottom: 16px;
+              color: #0369A1;
+            }
+            .highlight-text {
+              font-size: 12px;
+              font-weight: 500;
+              line-height: 1.5;
+            }
+            .doc-card {
+              border: 1px solid #E2E8F0;
+              border-radius: 6px;
+              padding: 10px;
+              margin-bottom: 8px;
+              background: #FAFAFA;
+              page-break-inside: avoid;
+            }
+            .doc-meta {
+              display: flex;
+              justify-content: space-between;
+              font-size: 9px;
+              font-weight: 700;
+              color: #475569;
+              font-family: 'JetBrains Mono', monospace;
+            }
+            .doc-content {
+              font-size: 11px;
+              color: #475569;
+              margin-top: 4px;
+              font-style: italic;
+              line-height: 1.4;
+            }
+            .tech-specs {
+              font-family: 'JetBrains Mono', monospace;
+              font-size: 9px;
+              background: #F8FAFC;
+              border: 1px solid #E2E8F0;
+              border-radius: 6px;
+              padding: 10px;
+              display: grid;
+              grid-template-cols: repeat(4, 1fr);
+              gap: 10px;
+              color: #475569;
+            }
+            .tech-item span {
+              display: block;
+            }
+            .tech-label {
+              font-size: 8px;
+              color: #64748B;
+              text-transform: uppercase;
+              font-weight: bold;
+              margin-bottom: 2px;
+            }
+            .footer {
+              margin-top: 40px;
+              border-top: 1px solid #E2E8F0;
+              padding-top: 12px;
+              font-size: 9px;
+              color: #94A3B8;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-family: 'JetBrains Mono', monospace;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="brand">Leapy CSbot</div>
+              <div class="subtitle">Dossiê de Auditoria Cognitiva de Customer Success</div>
+            </div>
+            <div class="doc-id">AUDIT-ID: ${log.id}</div>
+          </div>
+
+          <div class="section-title">Consulta Submetida pelo Analista</div>
+          <div class="query-box">
+            "${log.query}"
+          </div>
+
+          <div class="section-title">Avaliação e Parâmetros Cognitivos</div>
+          <div class="grid-kpis">
+            <div class="kpi-card">
+              <div class="kpi-label">Confiança do Grafo</div>
+              <div class="kpi-value">
+                <span class="badge ${confidenceClass}">${log.confidence}</span>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Classificação de Intenção</div>
+              <div class="kpi-value" style="font-size: 10px;">${blocks.classificacaoIntencao || 'N/A'}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Sinalização de Risco</div>
+              <div class="kpi-value">
+                <span class="badge ${riskClass}">${risk}</span>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Carimbo de Data/Hora</div>
+              <div class="kpi-value" style="font-size: 10px;">${new Date(log.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div class="section-title">Diretriz Operacional Emitida</div>
+          <div class="highlight-box">
+            <div class="content-header" style="color: #0369A1;">1. Diretriz Homologada</div>
+            <div class="highlight-text">
+              ${blocks.respostaObjetiva || (log as any).text || ''}
+            </div>
+          </div>
+
+          <div class="content-block">
+            <div class="content-header">2. Resumo Contextualizado</div>
+            <div class="content-text">${blocks.resumoCaso || 'N/A'}</div>
+          </div>
+
+          <div class="content-block">
+            <div class="content-header">3. Justificativa Estruturada</div>
+            <div class="content-text">${blocks.justificativa || 'N/A'}</div>
+          </div>
+
+          <div class="content-block">
+            <div class="content-header">4. Próxima Ação recomendada (CS)</div>
+            <div class="content-text" style="color: #0284C7; font-weight: 500;">${blocks.proximaAcaoRecomendada || 'N/A'}</div>
+          </div>
+
+          ${blocks.ressalvas ? `
+          <div class="content-block" style="border-left: 4px solid #D97706; background: #FFFDF5;">
+            <div class="content-header" style="color: #B45309;">Observações & Ressalvas</div>
+            <div class="content-text">${blocks.ressalvas}</div>
+          </div>
+          ` : ''}
+
+          <div class="section-title">Evidências e Grounding (Artigos do Playbook Associados)</div>
+          ${matchedDocsList.length === 0 ? `
+            <div style="padding: 10px; background: #FEE2E2; color: #B91C1C; border-radius: 4px; font-weight: 500; font-family: monospace; font-size: 10px; text-align: center;">
+              ⚠️ NENHUM DOCUMENTO ENCONTRADO NO VECTOR DB (EXECUÇÃO DE FALLBACK OPERATIVO)
+            </div>
+          ` : matchedDocsList.map(doc => `
+            <div class="doc-card">
+              <div class="doc-meta">
+                <span>📄 ${doc.id}</span>
+                <span>Tópico: ${doc.topic}</span>
+              </div>
+              <div class="doc-content">"${doc.content}"</div>
+            </div>
+          `).join('')}
+
+          ${directConceptsList.length > 0 ? `
+            <div class="section-title">Conceitos Relacionados</div>
+            <div style="display: grid; grid-template-cols: 1fr 1fr; gap: 10px;">
+              ${directConceptsList.map(c => `
+                <div style="border: 1px solid #E2E8F0; padding: 10px; border-radius: 6px; background: #FAFDFE;">
+                  <div style="font-weight: 700; color: #0284C7; font-size: 10.5px;">🔗 ${c.title}</div>
+                  <div style="font-size: 10px; color: #475569; margin-top: 3px;">${c.description}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div class="section-title" style="margin-top: 30px;">Especificações Técnicas de Grounding</div>
+          <div class="tech-specs">
+            <div class="tech-item">
+              <span class="tech-label">LLM Engine</span>
+              <span>Gemini 2.5 Flash</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">Temperature</span>
+              <span>0.15 (Strict)</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">Grounding Mode</span>
+              <span>Grafo Híbrido</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-label">Filtros</span>
+              <span>Safety Block Ativo</span>
+            </div>
+          </div>
+
+          <div class="footer">
+            <span>Leapy CSbot © 2026</span>
+            <span>Relatório Autêntico Homologado</span>
+            <span>Página 1 de 1</span>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printFrame.contentWindow?.document.open();
+    printFrame.contentWindow?.document.write(htmlContent);
+    printFrame.contentWindow?.document.close();
+
+    printFrame.onload = () => {
+      setTimeout(() => {
+        printFrame.contentWindow?.focus();
+        printFrame.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(printFrame);
+        }, 1000);
+      }, 500);
+    };
+  };
 
   const getNodeTitle = (id: string) => {
     const node = allNodes.find(n => n.id === id);
@@ -512,16 +886,26 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-[var(--border-main)] bg-[var(--bg-header)] flex justify-between items-center">
-              <span className="text-[10px] text-[var(--text-muted)] font-mono">
+            <div className="p-4 border-t border-[var(--border-main)] bg-[var(--bg-header)] flex justify-between items-center gap-2">
+              <span className="text-[10px] text-[var(--text-muted)] font-mono hidden sm:inline">
                 Log ID: {selectedLogForModal.id}
               </span>
-              <button
-                onClick={() => setSelectedLogForModal(null)}
-                className="px-4 py-2 bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/85 text-black font-bold text-xs rounded transition-all shadow-md cursor-pointer"
-              >
-                Fechar Dossiê
-              </button>
+              <div className="flex gap-2 w-full sm:w-auto justify-end">
+                <button
+                  onClick={() => handleExportPDF(selectedLogForModal)}
+                  className="px-3.5 py-2 bg-[var(--bg-panel)] hover:bg-[var(--bg-card-hover)] text-[var(--accent-color)] font-bold text-xs rounded border border-[var(--border-main)] transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Exportar como PDF para arquivamento ou conformidade"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Exportar PDF</span>
+                </button>
+                <button
+                  onClick={() => setSelectedLogForModal(null)}
+                  className="px-4 py-2 bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/85 text-black font-bold text-xs rounded transition-all shadow-md cursor-pointer"
+                >
+                  Fechar Dossiê
+                </button>
+              </div>
             </div>
           </div>
         </div>
