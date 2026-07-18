@@ -1,0 +1,6 @@
+{
+  "name": "Leapy CSbot",
+  "description": "Assistente interno inteligente para Customer Success da Leapy com grafo de conceitos para análise de dados e explicabilidade.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
