@@ -227,24 +227,98 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
     }
   };
 
+  const [showDocuments, setShowDocuments] = useState(true);
   const topics = ['All', 'Cotas e Legislação', 'Benefícios e RH', 'Operação e Tributário', 'Plataforma e Automação', 'Transição e Carreira', 'Objeções de Vendas e Segurança'];
+
+  // Filter nodes and edges dynamically
+  const filteredNodes = nodes.filter(node => {
+    if (!showDocuments && node.type === 'document') return false;
+    if (selectedTopic !== 'All' && node.topic !== selectedTopic && node.type === 'document') return false;
+    return true;
+  });
+
+  const filteredEdges = edges.filter(edge => {
+    const source = filteredNodes.find(n => n.id === edge.source);
+    const target = filteredNodes.find(n => n.id === edge.target);
+    return !!source && !!target;
+  });
+
+  // Top 5 most relevant nodes (from current search or fallback to connection degrees)
+  const top5NodeIds = (() => {
+    if (highlightedNodeIds && highlightedNodeIds.length > 0) {
+      return highlightedNodeIds.slice(0, 5);
+    } else {
+      const counts: Record<string, number> = {};
+      edges.forEach(e => {
+        counts[e.source] = (counts[e.source] || 0) + 1;
+        counts[e.target] = (counts[e.target] || 0) + 1;
+      });
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([id]) => id);
+    }
+  })();
+
+  // Identify edges in the "Decision Path" (caminho de decisão)
+  const isDecisionPathEdge = (edge: GraphEdge) => {
+    if (highlightedNodeIds.length < 2) return false;
+    const isSrcHl = highlightedNodeIds.includes(edge.source);
+    const isTgtHl = highlightedNodeIds.includes(edge.target);
+    const isTopRelevant = top5NodeIds.slice(0, 3).includes(edge.source) || top5NodeIds.slice(0, 3).includes(edge.target);
+    return isSrcHl && isTgtHl && isTopRelevant;
+  };
+
+  // 1-line relevance explanations for tooltips
+  const getRelevanceExplanation = (node: SimulatedNode) => {
+    const isHighlighted = highlightedNodeIds.includes(node.id);
+    const isTop5 = top5NodeIds.includes(node.id);
+    if (isHighlighted) {
+      if (node.type === 'document') {
+        return "Relevante: Base documental que fundamenta as regras do caso.";
+      } else {
+        return "Decisão: Conceito lógico ativado para a resolução.";
+      }
+    } else if (isTop5) {
+      return "Conexão Central: Um dos 5 nós mais influentes da base operacional.";
+    } else {
+      return "Contexto: Conexão complementar de auditoria secundária.";
+    }
+  };
 
   return (
     <div 
-      className="flex flex-col h-full bg-[#0e121e] border-l border-slate-800/80 relative select-none overflow-hidden"
+      className="flex flex-col h-full bg-[var(--bg-app)] border-l app-border relative select-none overflow-hidden"
       id="graph-panel"
     >
       {/* Header controls */}
-      <div className="p-4 border-b border-slate-800 bg-[#0f1424]/90 flex flex-col gap-2.5 z-10">
+      <div className="p-4 border-b app-border bg-[var(--bg-panel)] flex flex-col gap-2.5 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-300 font-display font-semibold text-xs tracking-wider uppercase">
             <Network className="w-4 h-4 text-cyan-400" />
-            <span>Painel de Conhecimento Estruturado</span>
+            <span>Mapeamento de Conceitos e Decisões</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1.5 items-center">
+            {/* Toggle Documentos / Auditoria */}
+            <button 
+              onClick={() => setShowDocuments(!showDocuments)}
+              className={`px-2.5 py-1 rounded border transition-all flex items-center gap-1.5 ${
+                showDocuments 
+                  ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/35' 
+                  : 'bg-[var(--bg-body)] text-[var(--text-muted)] app-border hover:bg-[var(--bg-card-hover)]'
+              }`}
+              title={showDocuments ? "Ocultar Documentos (Ver apenas Conceitos)" : "Exibir Documentos de Auditoria"}
+              id="btn-toggle-docs-visibility"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-bold">Docs (Auditoria)</span>
+            </button>
+
+            <div className="h-4 w-px bg-slate-800" />
+
             <button 
               onClick={handleZoomIn}
-              className="p-1 rounded bg-slate-800/70 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50"
+              className="p-1 rounded bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-main)] transition-colors border app-border"
               title="Aumentar Zoom"
               id="btn-zoom-in"
             >
@@ -252,7 +326,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
             </button>
             <button 
               onClick={handleZoomOut}
-              className="p-1 rounded bg-slate-800/70 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50"
+              className="p-1 rounded bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-main)] transition-colors border app-border"
               title="Diminuir Zoom"
               id="btn-zoom-out"
             >
@@ -260,7 +334,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
             </button>
             <button 
               onClick={handleRecenter}
-              className="p-1 rounded bg-slate-800/70 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50"
+              className="p-1 rounded bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-main)] transition-colors border app-border"
               title="Centralizar"
               id="btn-recenter"
             >
@@ -268,7 +342,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
             </button>
             <button 
               onClick={() => setPhysicsEnabled(!physicsEnabled)}
-              className={`p-1 rounded transition-all border ${physicsEnabled ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-slate-800/70 text-slate-400 border-slate-700/50'}`}
+              className={`p-1 rounded transition-all border ${physicsEnabled ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' : 'bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] app-border'}`}
               title={physicsEnabled ? "Pausar Dinâmica" : "Ativar Dinâmica"}
               id="btn-toggle-physics"
             >
@@ -283,11 +357,12 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
             <button
               key={t}
               onClick={() => setSelectedTopic(t)}
+              disabled={!showDocuments && t !== 'All'}
               id={`topic-filter-${t.toLowerCase().replace(/\s+/g, '-')}`}
               className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${
                 selectedTopic === t 
                   ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30' 
-                  : 'bg-slate-800/40 text-slate-400 hover:bg-slate-800/70 border border-slate-800/60'
+                  : 'bg-[var(--bg-body)] text-[var(--text-muted)] hover:bg-[var(--bg-card-hover)] border app-border disabled:opacity-30 disabled:pointer-events-none'
               }`}
             >
               {t === 'All' ? 'Todos os Nós' : t.split(' e ')[0]}
@@ -309,19 +384,20 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
       >
         <svg 
           className="w-full h-full"
-          style={{ backgroundImage: 'radial-gradient(#1e293b 0.75px, transparent 0.75px)', backgroundSize: '20px 20px', opacity: 0.85 }}
+          style={{ backgroundImage: 'radial-gradient(var(--border-main, #24343B) 0.75px, transparent 0.75px)', backgroundSize: '20px 20px', opacity: 0.85 }}
         >
           <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
             
             {/* Edges Link Lines */}
-            {edges.map((edge, index) => {
-              const source = nodes.find(n => n.id === edge.source);
-              const target = nodes.find(n => n.id === edge.target);
+            {filteredEdges.map((edge, index) => {
+              const source = filteredNodes.find(n => n.id === edge.source);
+              const target = filteredNodes.find(n => n.id === edge.target);
               if (!source || !target) return null;
 
               const isSourceHighlighted = highlightedNodeIds.includes(edge.source);
               const isTargetHighlighted = highlightedNodeIds.includes(edge.target);
               const isHighlighted = isSourceHighlighted && isTargetHighlighted;
+              const isDecisionPath = isDecisionPathEdge(edge);
 
               return (
                 <g key={`edge-${index}`}>
@@ -330,17 +406,24 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                     y1={source.y}
                     x2={target.x}
                     y2={target.y}
-                    stroke={isHighlighted ? '#22d3ee' : '#27314a'}
-                    strokeWidth={isHighlighted ? 1.8 : 0.9}
-                    strokeOpacity={isHighlighted ? 0.95 : 0.35}
-                    strokeDasharray={edge.label === 'Define' ? '3,3' : undefined}
+                    stroke={
+                      isDecisionPath 
+                        ? 'var(--accent-color, #4FB8D6)' 
+                        : isHighlighted 
+                        ? 'var(--accent-color, #4FB8D6)' 
+                        : 'var(--border-main, #24343B)'
+                    }
+                    strokeWidth={isDecisionPath ? 2.5 : isHighlighted ? 1.6 : 0.8}
+                    strokeOpacity={isDecisionPath ? 0.95 : isHighlighted ? 0.8 : 0.3}
+                    strokeDasharray={isDecisionPath ? '5,5' : edge.label === 'Define' ? '3,3' : undefined}
+                    className={isDecisionPath ? 'animate-pulse' : undefined}
                   />
                   {edge.label && isHighlighted && (
                     <text
                       x={(source.x + target.x) / 2}
                       y={(source.y + target.y) / 2 - 3}
-                      fill="#22d3ee"
-                      fontSize="7"
+                      fill="var(--accent-color, #4FB8D6)"
+                      fontSize="7.5"
                       fontWeight="600"
                       textAnchor="middle"
                       className="select-none pointer-events-none opacity-80 font-mono"
@@ -352,8 +435,8 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
               );
             })}
 
-            {/* Glowing halos for highlighted nodes */}
-            {nodes.map(node => {
+            {/* Glowing halos for highlighted nodes (subtle, non-neon, pulse) */}
+            {filteredNodes.map(node => {
               const isHighlighted = highlightedNodeIds.includes(node.id);
               if (!isHighlighted) return null;
 
@@ -362,28 +445,26 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                   key={`halo-${node.id}`}
                   cx={node.x}
                   cy={node.y}
-                  r={node.radius + 10}
+                  r={node.radius + 8}
                   fill="none"
-                  stroke={node.type === 'document' ? '#22d3ee' : '#818cf8'}
-                  strokeWidth="2"
-                  strokeOpacity="0.3"
-                  className="animate-ping"
-                  style={{ transformOrigin: `${node.x}px ${node.y}px`, animationDuration: '3s' }}
+                  stroke="var(--accent-color, #4FB8D6)"
+                  strokeWidth="1.5"
+                  strokeOpacity="0.25"
+                  className="animate-pulse"
+                  style={{ transformOrigin: `${node.x}px ${node.y}px`, animationDuration: '4s' }}
                 />
               );
             })}
 
             {/* Actual Nodes */}
-            {nodes.map(node => {
+            {filteredNodes.map(node => {
               const isHighlighted = highlightedNodeIds.includes(node.id);
-              const isFiltered = selectedTopic !== 'All' && node.topic !== selectedTopic && node.type === 'document';
+              const isTopRelevant = top5NodeIds.includes(node.id);
               
               // Obsidian style: esmaecer nós que não estão destacados se houver uma consulta ativa
               const hasActiveSearch = highlightedNodeIds.length > 0;
               let opacity = 1;
-              if (isFiltered) {
-                opacity = 0.1;
-              } else if (hasActiveSearch && !isHighlighted) {
+              if (hasActiveSearch && !isHighlighted) {
                 opacity = 0.35; // esmaecido discreto para contexto estruturado
               }
 
@@ -403,34 +484,59 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                   style={{ opacity, transition: 'opacity 0.4s ease' }}
                   id={`node-element-${node.id}`}
                 >
-                  {/* Outer ring for selected node */}
+                  {/* Outer ring for top 5 most relevant nodes */}
+                  {isTopRelevant && (
+                    <circle
+                      r={node.radius + 5}
+                      fill="transparent"
+                      stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : 'var(--text-muted, #9AA8AE)'}
+                      strokeWidth="1.2"
+                      strokeDasharray="2,2"
+                      className="animate-spin"
+                      style={{ transformOrigin: '0px 0px', animationDuration: '12s' }}
+                    />
+                  )}
+
+                  {/* Outer ring for general selection */}
                   <circle
-                    r={node.radius + 4}
+                    r={node.radius + 3}
                     fill="transparent"
-                    stroke={isHighlighted ? (node.type === 'document' ? '#22d3ee' : '#818cf8') : 'transparent'}
-                    strokeWidth="1.2"
+                    stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : 'transparent'}
+                    strokeWidth="1"
                   />
 
                   {/* Core circle */}
                   <circle
                     r={node.radius}
-                    fill={isHighlighted ? (node.type === 'document' ? '#0e7490' : '#4338ca') : (node.type === 'document' ? '#1e293b' : '#0f172a')}
-                    stroke={node.type === 'document' ? '#22d3ee' : '#6366f1'}
+                    fill={isHighlighted ? (node.type === 'document' ? '#144656' : '#2A3C46') : (node.type === 'document' ? 'var(--bg-body, #0B1114)' : 'var(--bg-panel, #162229)')}
+                    stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : node.type === 'document' ? 'var(--accent-alt, #4DBA8A)' : 'var(--text-muted, #9AA8AE)'}
                     strokeWidth={isHighlighted ? 2 : 1}
-                    className="transition-all duration-300"
+                    className="transition-all duration-350"
                   />
 
                   {/* Text label */}
                   <text
-                    y={node.radius + 13}
+                    y={node.radius + 12}
                     textAnchor="middle"
-                    fill={isHighlighted ? '#ffffff' : '#94a3b8'}
+                    fill={isHighlighted ? 'var(--text-main, #E8EEF0)' : 'var(--text-muted, #9AA8AE)'}
                     fontSize="8.5"
                     fontWeight={isHighlighted ? '600' : '500'}
-                    className="select-none pointer-events-none"
+                    className="select-none pointer-events-none font-sans"
                   >
-                    {node.title.length > 22 ? node.title.substring(0, 20) + '...' : node.title}
+                    {node.title.length > 20 ? node.title.substring(0, 18) + '...' : node.title}
                   </text>
+
+                  {/* Star/Top relevance mini-dot */}
+                  {isTopRelevant && (
+                    <circle
+                      cx={node.radius - 2}
+                      cy={-node.radius + 2}
+                      r="2.5"
+                      fill="var(--warning-color, #D7A54C)"
+                      stroke="var(--bg-card)"
+                      strokeWidth="0.5"
+                    />
+                  )}
                 </g>
               );
             })}
@@ -440,22 +546,30 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
         {/* Live hovering Obsidian Tooltip */}
         {tooltipNode && (
           <div 
-            className="absolute p-3 bg-slate-900/95 border border-slate-800 rounded shadow-xl text-xs max-w-xs z-50 pointer-events-none animate-fadeIn backdrop-blur-md"
+            className="absolute p-3 bg-[var(--bg-card)] border app-border rounded shadow-xl text-xs max-w-xs z-50 pointer-events-none animate-fadeIn backdrop-blur-md"
             style={{
               left: `${Math.min((tooltipNode.x * zoom + pan.x) + 15, (containerRef.current?.getBoundingClientRect().width || 600) - 230)}px`,
               top: `${Math.max((tooltipNode.y * zoom + pan.y) - 40, 10)}px`
             }}
             id="node-hover-tooltip"
           >
-            <div className="flex items-center gap-1.5 font-display font-semibold text-slate-200 border-b border-slate-800 pb-1.5 mb-1.5">
+            <div className="flex items-center gap-1.5 font-display font-semibold text-[var(--text-main)] border-b app-border pb-1.5 mb-1.5">
               {tooltipNode.type === 'document' ? (
-                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <FileText className="w-3.5 h-3.5 text-[var(--accent-alt, #4DBA8A)]" />
               ) : (
-                <Compass className="w-3.5 h-3.5 text-indigo-400" />
+                <Compass className="w-3.5 h-3.5 text-[var(--accent-color, #4FB8D6)]" />
               )}
-              <span>{tooltipNode.title}</span>
+              <span className="truncate max-w-[170px]">{tooltipNode.title}</span>
+              {top5NodeIds.includes(tooltipNode.id) && (
+                <span className="ml-auto text-[8px] bg-amber-500/10 text-amber-400 px-1 py-0.2 rounded border border-amber-500/20 font-bold uppercase">Top 5</span>
+              )}
             </div>
             
+            {/* 1-line Relevance Explanation (MANDATORY REQUIREMENT) */}
+            <p className="text-[var(--text-highlight)] font-medium mb-1.5 leading-relaxed text-[10px] italic border-l-2 border-[var(--accent-color)] pl-1.5">
+              {getRelevanceExplanation(tooltipNode)}
+            </p>
+
             {tooltipNode.description && (
               <p className="text-slate-400 mb-2 leading-relaxed text-[11px]">{tooltipNode.description}</p>
             )}
@@ -469,24 +583,17 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
 
             <div className="flex flex-wrap gap-1 mt-1">
               {tooltipNode.keywords.slice(0, 4).map(kw => (
-                <span key={kw} className="px-1.5 py-0.5 rounded bg-slate-800 text-[9px] text-slate-400 border border-slate-700/60">
+                <span key={kw} className="px-1.5 py-0.5 rounded bg-[var(--bg-body)] text-[9px] text-[var(--text-muted)] border app-border">
                   #{kw}
                 </span>
               ))}
             </div>
-            
-            {highlightedNodeIds.includes(tooltipNode.id) && (
-              <div className="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center gap-1 text-[9px] font-bold text-cyan-400">
-                <Sparkles className="w-3 h-3 animate-spin" style={{ animationDuration: '6s' }} />
-                <span>Nó Ativado no Raciocínio Recente</span>
-              </div>
-            )}
           </div>
         )}
 
         {/* Dynamic empty canvas helper */}
-        <div className="absolute bottom-3 left-3 bg-slate-900/95 border border-slate-800/60 rounded px-2.5 py-1 text-[9px] text-slate-400 pointer-events-none flex items-center gap-1.5 shadow-sm">
-          <HelpCircle className="w-3 h-3 text-slate-500" />
+        <div className="absolute bottom-3 left-3 bg-[var(--bg-body)] border border-[var(--border-main)]/60 rounded px-2.5 py-1 text-[9px] text-[var(--text-muted)] pointer-events-none flex items-center gap-1.5 shadow-sm">
+          <HelpCircle className="w-3 h-3 text-[var(--text-muted)]" />
           <span>Arraste os nós para organizar. Use o Scroll para dar Zoom.</span>
         </div>
       </div>

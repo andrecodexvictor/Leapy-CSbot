@@ -341,6 +341,253 @@ Preencha todos os campos do JSON com base estrita no contexto acima.`;
   });
 });
 
+// Setup Knowledge Base Analytics & Stats API
+app.get('/api/kb/stats', (req, res) => {
+  // 1. Gather all logged gaps (queries with Low or No confidence, or those marked with 'dislike' feedback)
+  const gaps = auditLogs
+    .filter(log => {
+      const isLowConfidence = log.confidence === 'Baixa' || log.confidence === 'Nenhuma';
+      const isDisliked = (log as any).feedback === 'dislike';
+      return isLowConfidence || isDisliked;
+    })
+    .map(log => ({
+      id: log.id,
+      timestamp: log.timestamp,
+      query: log.query,
+      confidence: log.confidence,
+      feedbackComment: (log as any).feedbackComment,
+      feedback: (log as any).feedback
+    }));
+
+  // 2. Count risk occurrences of active audits
+  const riskCounts = { Alto: 0, Médio: 0, Baixo: 0 };
+  auditLogs.forEach(log => {
+    const risk = (log as any).blocks?.sinalizacaoRisco || 'Baixo';
+    if (riskCounts[risk as 'Alto' | 'Médio' | 'Baixo'] !== undefined) {
+      riskCounts[risk as 'Alto' | 'Médio' | 'Baixo']++;
+    }
+  });
+
+  // 3. Extract hot topics (most common words from queries)
+  const wordsMap: Record<string, number> = {};
+  const stopWords = new Set(['de', 'do', 'da', 'o', 'a', 'os', 'as', 'em', 'um', 'uma', 'para', 'com', 'se', 'por', 'que', 'no', 'na', 'tem', 'e', 'ou', 'como', 'qual', 'o que', 'como', 'quem', 'quanto', 'quantas', 'meu', 'cliente', 'sobre', 'como', 'para', 'onde', 'quando', 'leapy', 'csbot']);
+  
+  auditLogs.forEach(log => {
+    const words = log.query.toLowerCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 2 && !stopWords.has(w));
+    words.forEach(w => {
+      wordsMap[w] = (wordsMap[w] || 0) + 1;
+    });
+  });
+
+  const hotTopics = Object.entries(wordsMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([topic, count]) => ({ topic, count }));
+
+  // 4. Feedback rating
+  const totalFeedback = auditLogs.filter(log => (log as any).feedback).length;
+  const likes = auditLogs.filter(log => (log as any).feedback === 'like').length;
+  const dislikes = auditLogs.filter(log => (log as any).feedback === 'dislike').length;
+  const ratingPercentage = totalFeedback > 0 ? Math.round((likes / totalFeedback) * 100) : 100;
+
+  // 5. General coverage metrics
+  const totalDocs = NODES.filter(n => n.type === 'document').length;
+  const totalConcepts = NODES.filter(n => n.type === 'concept').length;
+  const totalEdges = EDGES.length;
+
+  // Stale articles (those with very few keywords or older content)
+  const staleArticles = NODES
+    .filter(n => n.type === 'document' && (n.keywords?.length || 0) < 6)
+    .map(n => {
+      const doc = n as any;
+      return {
+        id: doc.id,
+        title: doc.title,
+        topic: doc.topic || 'Geral',
+        reason: 'Densidade reduzida de indexadores (keywords) para busca contextual.'
+      };
+    });
+
+  res.json({
+    totalAudits: auditLogs.length,
+    gaps,
+    riskCounts,
+    hotTopics,
+    feedback: {
+      totalFeedback,
+      likes,
+      dislikes,
+      ratingPercentage
+    },
+    coverage: {
+      totalDocs,
+      totalConcepts,
+      totalEdges,
+      unlinkedConcepts: Math.max(0, totalConcepts - Math.round(totalEdges / 2.5))
+    },
+    staleArticles
+  });
+});
+
+// 6. Add/Update Knowledge Base Node (Document or Concept)
+app.post('/api/kb/node', (req, res) => {
+  const { id, title, type, topic, content, description, keywords } = req.body;
+  if (!id || !title || !type) {
+    return res.status(400).json({ error: 'Campos id, título e tipo são obrigatórios.' });
+  }
+
+  const existingIndex = NODES.findIndex(n => n.id === id);
+  const updatedNode: any = {
+    id,
+    title,
+    type,
+    keywords: Array.isArray(keywords) ? keywords : (keywords ? keywords.split(',').map((k: string) => k.trim()) : [])
+  };
+
+  if (type === 'document') {
+    updatedNode.topic = topic || 'Outros';
+    updatedNode.content = content || '';
+    updatedNode.filename = id.endsWith('.md') ? id : `${id}.md`;
+  } else {
+    updatedNode.description = description || '';
+  }
+
+  if (existingIndex > -1) {
+    NODES[existingIndex] = { ...NODES[existingIndex], ...updatedNode };
+  } else {
+    NODES.push(updatedNode);
+  }
+
+  res.json({ status: 'ok', node: updatedNode, nodesCount: NODES.length });
+});
+
+// 7. Add Relation Link (Edge)
+app.post('/api/kb/edge', (req, res) => {
+  const { source, target, label } = req.body;
+  if (!source || !target) {
+    return res.status(400).json({ error: 'Campos de origem (source) e destino (target) são obrigatórios.' });
+  }
+
+  const srcNode = NODES.find(n => n.id === source);
+  const tgtNode = NODES.find(n => n.id === target);
+  if (!srcNode || !tgtNode) {
+    return res.status(400).json({ error: 'Os nós vinculados precisam existir no grafo.' });
+  }
+
+  const existingEdge = EDGES.find(e => e.source === source && e.target === target);
+  if (!existingEdge) {
+    EDGES.push({ source, target, label: label || 'Vinculado' });
+  } else {
+    existingEdge.label = label || 'Vinculado';
+  }
+
+  res.json({ status: 'ok', edgesCount: EDGES.length });
+});
+
+// 8. Delete Node
+app.delete('/api/kb/node/:id', (req, res) => {
+  const { id } = req.params;
+  const index = NODES.findIndex(n => n.id === id);
+  if (index > -1) {
+    NODES.splice(index, 1);
+    // Delete associated edges
+    for (let i = EDGES.length - 1; i >= 0; i--) {
+      if (EDGES[i].source === id || EDGES[i].target === id) {
+        EDGES.splice(i, 1);
+      }
+    }
+    return res.json({ status: 'ok', message: 'Nó e seus vínculos foram deletados com sucesso.' });
+  }
+  res.status(404).json({ error: 'Nó não encontrado.' });
+});
+
+// 9. Auto-generate draft article for gap resolution using Gemini
+app.post('/api/kb/autodraft', async (req, res) => {
+  const { query } = req.body;
+  if (!query) {
+    return res.status(400).json({ error: 'O parâmetro query é obrigatório.' });
+  }
+
+  if (!ai) {
+    // Elegant simulation fallback
+    const tempId = 'auto_' + Date.now().toString().slice(-6);
+    return res.json({
+      id: `doc_${tempId}`,
+      title: `Procedimento Operacional: ${query.substring(0, 32)}`,
+      type: 'document',
+      topic: 'Plataforma e Automação',
+      content: `Este documento operacional foi criado automaticamente para resolver a lacuna identificada pelo analista:\n"${query}"\n\n### Diretrizes Operacionais Sugeridas:\n1. Configuração Inicial: O analista de CS deve conferir o cadastro do cliente e orientá-lo sobre este cenário.\n2. Tratamento do Caso: Siga o manual padrão de conformidade e verifique se há impacto financeiro ou fiscal.\n3. Escalamento tático: Caso a objeção ou dúvida persista, direcione o ticket ao suporte avançado com o registro deste manual.`,
+      keywords: ['resolução', 'procedimento', 'suporte', 'ajuda'],
+      conceptTitle: `Objeção / Dúvida: ${query.substring(0, 20)}`,
+      conceptDescription: `Conceito associado ao atendimento de ${query}`
+    });
+  }
+
+  try {
+    const prompt = `Você é o redator técnico de Customer Success da Leapy. Um analista relatou que nossa base de conhecimento atual tem uma lacuna e não pôde responder à seguinte dúvida ou cenário do cliente:
+"${query}"
+
+Crie um rascunho de artigo operacional excelente em português que resolva essa dúvida ou contorne a objeção. O artigo deve parecer oficial e integrado às regras de negócio da Leapy.
+
+Você deve responder estritamente no formato JSON com as seguintes propriedades:
+1. "title": Um título esbelto e profissional para o novo artigo (ex: "Manual de Tratamento de Objeções de X", "Diretrizes de Parametrização de Y").
+2. "topic": A categoria de negócio adequada (escolha uma de: "Cotas e Legislação", "Benefícios e RH", "Operação e Tributário", "Plataforma e Automação", "Transição e Carreira", "Objeções de Vendas e Segurança").
+3. "content": O texto completo do artigo (mínimo de 3 parágrafos explicativos, estruturados com etapas operacionais claras e justificativa de negócio).
+4. "keywords": Um array de até 6 palavras-chave strings em minúsculas para indexação híbrida.
+5. "conceptTitle": Um nome curto (2-4 palavras) para um novo conceito teórico do grafo que esse artigo define.
+6. "conceptDescription": Uma frase esbelta explicando a finalidade desse conceito no ecossistema do RH.
+
+Formato esperado de resposta: apenas o objeto JSON plano, sem markdown extra.`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            title: { type: Type.STRING },
+            topic: { type: Type.STRING },
+            content: { type: Type.STRING },
+            keywords: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
+            },
+            conceptTitle: { type: Type.STRING },
+            conceptDescription: { type: Type.STRING }
+          },
+          required: ['title', 'topic', 'content', 'keywords', 'conceptTitle', 'conceptDescription']
+        }
+      }
+    });
+
+    const text = response.text;
+    if (text) {
+      const parsed = JSON.parse(text.trim());
+      const tempId = 'auto_' + Date.now().toString().slice(-6);
+      res.json({
+        id: `doc_${tempId}`,
+        title: parsed.title,
+        type: 'document',
+        topic: parsed.topic,
+        content: parsed.content,
+        keywords: parsed.keywords,
+        conceptTitle: parsed.conceptTitle,
+        conceptDescription: parsed.conceptDescription
+      });
+    } else {
+      throw new Error("Resposta do Gemini vazia.");
+    }
+  } catch (err: any) {
+    console.error("Erro ao auto-draftar:", err);
+    res.status(500).json({ error: 'Falha ao processar o rascunho operacional via IA.' });
+  }
+});
+
 // Setup Vite or static serving
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {

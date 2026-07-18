@@ -33,6 +33,9 @@ import {
 import { GraphData, GraphNode, ChatMessage, AuditLog } from './types';
 import ConceptGraph from './components/ConceptGraph';
 import AuditDashboard from './components/AuditDashboard';
+import OperationalIntelligence from './components/OperationalIntelligence';
+import KBManager from './components/KBManager';
+import { Database, TrendingUp, PlusCircle, Maximize2, Minimize2, Palette } from 'lucide-react';
 
 export default function App() {
   const [query, setQuery] = useState('');
@@ -40,6 +43,23 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [showAuditPanel, setShowAuditPanel] = useState(false);
   
+  // Focus mode to expand chat pane to full screen
+  const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Premium Theme switcher state
+  const [appTheme, setAppTheme] = useState<'theme-slate-dark' | 'theme-slate-light' | 'theme-nordic-night'>(() => {
+    return (localStorage.getItem('leapy-theme') as any) || 'theme-slate-dark';
+  });
+
+  const handleThemeChange = (newTheme: 'theme-slate-dark' | 'theme-slate-light' | 'theme-nordic-night') => {
+    setAppTheme(newTheme);
+    localStorage.setItem('leapy-theme', newTheme);
+  };
+  
+  // Interactive workspace tabs state
+  const [activeRightTab, setActiveRightTab] = useState<string>('graph');
+  const [kbDraft, setKbDraft] = useState<any>(null);
+
   // Graph & Logs Data
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], edges: [] });
   const [highlightedNodeIds, setHighlightedNodeIds] = useState<string[]>([]);
@@ -54,43 +74,61 @@ export default function App() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Sync header audit toggle with tab selection
+  useEffect(() => {
+    if (showAuditPanel) {
+      setActiveRightTab('audit');
+    } else if (activeRightTab === 'audit') {
+      setActiveRightTab('graph');
+    }
+  }, [showAuditPanel]);
+
+  // Sync tab selection back to header state
+  useEffect(() => {
+    if (activeRightTab === 'audit') {
+      setShowAuditPanel(true);
+    } else {
+      setShowAuditPanel(false);
+    }
+  }, [activeRightTab]);
+
   // Recommended playbooks and common CS issues
   const suggestions = [
     {
       label: 'Cotas Aprendiz/PCD',
       text: 'Qual a cota de jovem aprendiz e PCD que somos obrigados a contratar e como a Leapy lida com isso?',
       icon: Building2,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     },
     {
       label: 'Elegibilidade Estágio',
       text: 'Estagiário tem direito a plano de saúde ou Gympass na Leapy?',
       icon: FileSpreadsheet,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     },
     {
       label: 'Operação Regional (BA)',
       text: 'A Leapy suporta dissídios retroativos automáticos na Bahia (BA) ou somente no Sudeste?',
       icon: MapPin,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     },
     {
       label: 'Prazos para Férias',
       text: 'Como funciona a solicitação de férias no portal do colaborador e quais os prazos?',
       icon: CalendarDays,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     },
     {
       label: 'Efetivação de Estágio',
       text: 'Como funciona a transição e efetivação de estagiário para CLT e qual o piso salarial?',
       icon: RefreshCw,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     },
     {
       label: 'Integração ERP/LGPD',
       text: 'Como responder à objeção do cliente sobre a integração com ERP Sênior/Totvs e segurança LGPD?',
       icon: ShieldCheck,
-      color: 'border-slate-800 text-slate-300 hover:border-cyan-500/40 hover:bg-cyan-500/5'
+      color: 'border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent-color)]/45 hover:bg-[var(--accent-color)]/5 hover:text-[var(--text-main)]'
     }
   ];
 
@@ -259,47 +297,77 @@ export default function App() {
   const latestBotResponse = [...messages].reverse().find(m => m.sender === 'bot');
 
   return (
-    <div className="flex flex-col w-full h-screen bg-[#090b11] text-slate-100 font-sans antialiased overflow-hidden">
+    <div className={`flex flex-col w-full h-screen ${appTheme} app-bg-app app-text-primary font-sans antialiased overflow-hidden`}>
       
       {/* Premium Navigation Header */}
-      <header className="h-14 border-b border-slate-800 bg-[#0c0f17]/95 px-5 flex items-center justify-between z-20 backdrop-blur-md">
+      <header className="h-14 border-b app-border app-bg-header px-5 flex items-center justify-between z-20 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <div className="relative">
             <div className="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/35 flex items-center justify-center text-cyan-400 font-bold text-base tracking-wider">
               L
             </div>
-            <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-[#090b11]"></span>
+            <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border app-border"></span>
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-display font-semibold text-sm tracking-wide text-slate-100">Leapy CSbot</span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-850 text-slate-400 text-[8px] font-mono tracking-widest border border-slate-800 uppercase">Copiloto</span>
+              <span className="font-display font-semibold text-sm tracking-wide text-[var(--text-main)]">Leapy CSbot</span>
+              <span className="px-1.5 py-0.5 rounded bg-[var(--bg-body)] text-[var(--text-muted)] text-[8px] font-mono tracking-widest border app-border uppercase">Copiloto</span>
             </div>
-            <p className="text-[10px] text-slate-500 tracking-tight">Plataforma de Inteligência Operacional de Customer Success</p>
+            <p className="text-[10px] text-[var(--text-muted)] tracking-tight">Plataforma de Inteligência Operacional de Customer Success</p>
           </div>
         </div>
 
         {/* Central status / metrics badge */}
-        <div className="hidden lg:flex items-center gap-5 text-[10px] text-slate-400 bg-slate-900/60 border border-slate-800/80 rounded-full px-4 py-1">
+        <div className="hidden lg:flex items-center gap-5 text-[10px] text-[var(--text-muted)] bg-[var(--bg-body)] border app-border rounded-full px-4 py-1">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
             <span>Grafo Estruturado Ativo</span>
           </div>
-          <span className="text-slate-750">|</span>
+          <span className="text-[var(--border-main)]">|</span>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
             <span>Raciocínio Baseado em Evidências</span>
           </div>
         </div>
 
-        {/* Audit mode controls */}
+        {/* Focus, Theme, and Audit controls */}
         <div className="flex items-center gap-2">
+          {/* Theme Selector Dropdown */}
+          <div className="flex items-center gap-1.5 bg-[var(--bg-body)] border app-border rounded px-2.5 py-1 text-xs select-none">
+            <Palette className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <select
+              value={appTheme}
+              onChange={(e) => handleThemeChange(e.target.value as any)}
+              className="bg-transparent border-none text-[11px] font-semibold text-[var(--text-main)] focus:outline-none cursor-pointer"
+              id="theme-select"
+            >
+              <option value="theme-slate-dark" className="bg-[#0c0f17] text-white">Escuro Cósmico</option>
+              <option value="theme-slate-light" className="bg-white text-slate-900">Claro Minimalista</option>
+              <option value="theme-nordic-night" className="bg-[#0a0f14] text-white">Norte Florestal</option>
+            </select>
+          </div>
+
+          {/* Focus Mode Button */}
+          <button
+            onClick={() => setIsFocusMode(!isFocusMode)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-semibold transition-all border ${
+              isFocusMode 
+                ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30' 
+                : 'bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] app-border'
+            }`}
+            id="toggle-focus-mode-btn"
+            title={isFocusMode ? 'Desativar modo foco' : 'Ativar modo foco'}
+          >
+            {isFocusMode ? <Minimize2 className="w-3.5 h-3.5 text-cyan-400" /> : <Maximize2 className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
+            <span>{isFocusMode ? 'Foco Ativo' : 'Modo Foco'}</span>
+          </button>
+
           <button
             onClick={() => setShowAuditPanel(!showAuditPanel)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-medium transition-all border ${
               showAuditPanel 
                 ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' 
-                : 'bg-slate-900 hover:bg-slate-850 text-slate-400 border-slate-800'
+                : 'bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] app-border'
             }`}
             id="toggle-audit-mode-btn"
           >
@@ -313,23 +381,23 @@ export default function App() {
       <div className="flex-1 flex w-full overflow-hidden" id="workspace-container">
         
         {/* Left Side: Professional Decision & Assistant Hub */}
-        <div className="w-1/2 flex flex-col h-full border-r border-slate-800 bg-[#090b11]" id="chat-section">
+        <div className={`flex flex-col h-full bg-[var(--bg-app)] transition-all duration-300 ${isFocusMode ? 'w-full border-r-0' : 'w-1/2 border-r app-border'}`} id="chat-section">
           
           {/* Scrollable container for Assistant Decisions & Playbook selections */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4" id="chat-scroller">
             
             {/* If no question has been asked, show welcoming intro card */}
             {messages.length <= 1 && (
-              <div className="p-4 bg-slate-950/40 border border-slate-800/60 rounded-lg space-y-3">
+              <div className="p-4 bg-[var(--bg-body)] border app-border rounded-lg space-y-3">
                 <div className="flex items-center gap-2 text-cyan-400 font-semibold text-xs font-mono uppercase">
                   <Cpu className="w-4 h-4" />
                   <span>Ambiente de Decisão Homologado</span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-[var(--text-main)] leading-relaxed">
                   O Leapy CSbot foi desenvolvido especificamente para apoiar o time de Suporte e Customer Success. 
                   Diferente de chatbots genéricos, ele cruza as perguntas dos analistas com nossa base documental indexada em grafo, prevenindo alucinações legais.
                 </p>
-                <div className="text-[10px] text-slate-500 leading-relaxed">
+                <div className="text-[10px] text-[var(--text-muted)] leading-relaxed">
                   Use os playbooks rápidos abaixo para testar fluxos reais ou descreva o problema do seu cliente na caixa de texto.
                 </div>
               </div>
@@ -340,27 +408,27 @@ export default function App() {
               <div className="space-y-4" id="active-decision-panel">
                 
                 {/* Visual Indicator of current query */}
-                <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
+                <div className="bg-[var(--bg-body)] p-3 rounded-lg border border-[var(--border-main)] flex justify-between items-center text-xs">
                   <div className="flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-slate-500" />
-                    <span className="text-slate-400 font-medium">Última Pergunta Auditada:</span>
+                    <User className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                    <span className="text-[var(--text-muted)] font-medium">Última Pergunta Auditada:</span>
                   </div>
-                  <span className="text-slate-300 font-semibold italic truncate max-w-[240px]">
+                  <span className="text-[var(--text-main)] font-semibold italic truncate max-w-[240px]">
                     "{[...messages].reverse().find(m => m.sender === 'user')?.text || 'Consulta de boas-vindas'}"
                   </span>
                 </div>
 
                 {/* Main Core Assistant Answer Block */}
-                <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                <div className="bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl overflow-hidden shadow-lg">
                   
                   {/* Top indicators */}
-                  <div className="p-3 bg-[#0d101a] border-b border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+                  <div className="p-3 bg-[var(--bg-panel)] border-b border-[var(--border-main)] flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-main)]">
                       <Sparkles className="w-4 h-4 text-cyan-400" />
                       <span>Copiloto de Decisão Assistida</span>
                     </div>
                     {latestBotResponse.blocks?.classificacaoIntencao && (
-                      <span className="text-[9px] bg-slate-800 text-slate-300 border border-slate-700 font-mono px-2 py-0.5 rounded">
+                      <span className="text-[9px] bg-[var(--bg-body)] text-[var(--text-muted)] border border-[var(--border-main)] font-mono px-2 py-0.5 rounded">
                         {latestBotResponse.blocks.classificacaoIntencao}
                       </span>
                     )}
@@ -369,54 +437,64 @@ export default function App() {
                   {/* Body Content */}
                   <div className="p-4 space-y-4">
                     
+                    {/* Resumo do Caso */}
+                    {latestBotResponse.blocks?.resumoCaso && (
+                      <div className="space-y-1 bg-[var(--bg-body)] p-3 rounded-lg border border-[var(--border-main)]/85">
+                        <span className="text-[9px] font-bold text-cyan-400/90 uppercase tracking-wider font-mono block">Resumo do Caso (Contexto CS)</span>
+                        <p className="text-xs text-[var(--text-main)] font-medium leading-relaxed">
+                          {latestBotResponse.blocks.resumoCaso}
+                        </p>
+                      </div>
+                    )}
+
                     {/* Block 1: Resposta Objetiva */}
                     <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono block">1. Diretriz Operacional</span>
-                      <div className="p-3 rounded-lg bg-cyan-950/10 border border-cyan-900/20 text-xs text-slate-200 leading-relaxed">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider font-mono block">1. Diretriz Operacional</span>
+                      <div className="p-3 rounded-lg bg-[var(--accent-glow)] border border-[var(--accent-color)]/20 text-xs text-[var(--text-main)] leading-relaxed">
                         {latestBotResponse.blocks?.respostaObjetiva}
                       </div>
                     </div>
 
                     {/* Block 2: Justificativa */}
                     <div className="space-y-1 pt-1">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono block">2. Justificativa de Decisão</span>
-                      <p className="text-xs text-slate-300 leading-relaxed pl-1">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider font-mono block">2. Justificativa de Decisão</span>
+                      <p className="text-xs text-[var(--text-main)] leading-relaxed pl-1">
                         {latestBotResponse.blocks?.justificativa}
                       </p>
                     </div>
 
                     {/* Block 3: Recommended tactical actions */}
                     {latestBotResponse.blocks?.proximaAcaoRecomendada && (
-                      <div className="pt-3 border-t border-slate-800/60 space-y-1">
-                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider font-mono flex items-center gap-1">
+                      <div className="pt-3 border-t border-[var(--border-main)]/60 space-y-1">
+                        <span className="text-[10px] font-bold text-[var(--accent-color)] uppercase tracking-wider font-mono flex items-center gap-1">
                           <CornerDownRight className="w-3.5 h-3.5" />
                           Ação Recomendada para o Analista (CS)
                         </span>
-                        <div className="p-2.5 rounded bg-slate-950/60 border border-slate-850 text-xs text-cyan-200 font-medium leading-relaxed">
+                        <div className="p-2.5 rounded bg-[var(--bg-body)] border border-[var(--border-main)] text-xs text-[var(--accent-color)] font-medium leading-relaxed">
                           {latestBotResponse.blocks.proximaAcaoRecomendada}
                         </div>
                       </div>
                     )}
 
                     {/* Meta & Risks Bar */}
-                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/50 text-[11px]">
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[var(--border-main)]/50 text-[11px]">
                       
                       {/* Risk evaluation */}
                       <div className="space-y-1">
-                        <span className="text-slate-500 font-mono block uppercase text-[9px]">Sinalização de Risco</span>
+                        <span className="text-[var(--text-muted)] font-mono block uppercase text-[9px]">Sinalização de Risco</span>
                         <div className="flex items-center gap-1.5">
                           {latestBotResponse.blocks?.sinalizacaoRisco === 'Alto' ? (
-                            <span className="flex items-center gap-1 text-rose-400 font-semibold bg-rose-950/20 px-2 py-0.5 rounded border border-rose-900/30 text-[10px]">
+                            <span className="flex items-center gap-1 font-semibold bg-[var(--badge-danger-bg)] text-[var(--badge-danger-text)] border border-[var(--badge-danger-border)] px-2 py-0.5 rounded text-[10px]">
                               <AlertOctagon className="w-3.5 h-3.5" />
                               Alto Risco
                             </span>
                           ) : latestBotResponse.blocks?.sinalizacaoRisco === 'Médio' ? (
-                            <span className="flex items-center gap-1 text-amber-400 font-semibold bg-amber-950/20 px-2 py-0.5 rounded border border-amber-900/30 text-[10px]">
+                            <span className="flex items-center gap-1 font-semibold bg-[var(--badge-warning-bg)] text-[var(--badge-warning-text)] border border-[var(--badge-warning-border)] px-2 py-0.5 rounded text-[10px]">
                               <AlertTriangle className="w-3.5 h-3.5" />
                               Médio Risco
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-emerald-400 font-semibold bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-900/30 text-[10px]">
+                            <span className="flex items-center gap-1 font-semibold bg-[var(--badge-success-bg)] text-[var(--badge-success-text)] border border-[var(--badge-success-border)] px-2 py-0.5 rounded text-[10px]">
                               <CheckCircle className="w-3.5 h-3.5" />
                               Baixo Risco
                             </span>
@@ -426,13 +504,13 @@ export default function App() {
 
                       {/* Confidence evaluation */}
                       <div className="space-y-1">
-                        <span className="text-slate-500 font-mono block uppercase text-[9px]">Grau de Confiança</span>
-                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <span className="text-[var(--text-muted)] font-mono block uppercase text-[9px]">Grau de Confiança</span>
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold border ${
                           latestBotResponse.blocks?.confianca === 'Alta' 
-                            ? 'bg-emerald-950/20 text-emerald-400 border border-emerald-900/30' 
+                            ? 'bg-[var(--badge-success-bg)] text-[var(--badge-success-text)] border-[var(--badge-success-border)]' 
                             : latestBotResponse.blocks?.confianca === 'Média'
-                            ? 'bg-amber-950/20 text-amber-400 border border-amber-900/30'
-                            : 'bg-rose-950/20 text-rose-400 border border-rose-900/30'
+                            ? 'bg-[var(--badge-warning-bg)] text-[var(--badge-warning-text)] border-[var(--badge-warning-border)]'
+                            : 'bg-[var(--badge-danger-bg)] text-[var(--badge-danger-text)] border-[var(--badge-danger-border)]'
                         }`}>
                           {latestBotResponse.blocks?.confianca}
                         </span>
@@ -441,10 +519,10 @@ export default function App() {
 
                     {/* Warnings & Caveats */}
                     {latestBotResponse.blocks?.ressalvas && (
-                      <div className="p-2.5 rounded bg-amber-950/10 border border-amber-900/20 flex gap-2 items-start text-[10px] text-slate-350">
-                        <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                      <div className="p-2.5 rounded bg-[var(--warning-color)]/10 border border-[var(--warning-color)]/20 flex gap-2 items-start text-[10px] text-[var(--text-main)]">
+                        <Info className="w-3.5 h-3.5 text-[var(--warning-color)] shrink-0 mt-0.5" />
                         <div>
-                          <span className="font-semibold text-amber-400">Observação Técnica:</span> {latestBotResponse.blocks.ressalvas}
+                          <span className="font-semibold text-[var(--warning-color)]">Observação Técnica:</span> {latestBotResponse.blocks.ressalvas}
                         </div>
                       </div>
                     )}
@@ -453,15 +531,15 @@ export default function App() {
 
                   {/* Feedback interface for operational auditing */}
                   {(latestBotResponse as any).logId && (
-                    <div className="p-3 bg-slate-950/80 border-t border-slate-850 flex flex-col gap-2">
-                      <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <div className="p-3 bg-[var(--bg-panel)] border-t border-[var(--border-main)] flex flex-col gap-2">
+                      <div className="flex items-center justify-between text-[11px] text-[var(--text-muted)]">
                         <div className="flex items-center gap-1">
-                          <ClipboardCheck className="w-3.5 h-3.5 text-slate-500" />
+                          <ClipboardCheck className="w-3.5 h-3.5 text-[var(--text-muted)]/70" />
                           <span>Esta resposta resolve a dúvida ou aponta lacuna na base?</span>
                         </div>
                         
                         {feedbackSubmitted === (latestBotResponse as any).logId ? (
-                          <span className="text-emerald-400 font-semibold flex items-center gap-1 text-[10px]">
+                          <span className="text-emerald-500 font-semibold flex items-center gap-1 text-[10px]">
                             <CheckCircle className="w-3.5 h-3.5" />
                             Auditoria enviada!
                           </span>
@@ -472,7 +550,7 @@ export default function App() {
                                 setFeedbackType('like');
                                 setShowFeedbackInput(true);
                               }}
-                              className={`p-1.5 rounded transition-colors ${feedbackType === 'like' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-900 hover:bg-slate-850 text-slate-400'}`}
+                              className={`p-1.5 rounded border transition-colors ${feedbackType === 'like' ? 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30' : 'bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] border-[var(--border-main)]/50'}`}
                               title="Diretriz Correta"
                             >
                               <ThumbsUp className="w-3.5 h-3.5" />
@@ -482,7 +560,7 @@ export default function App() {
                                 setFeedbackType('dislike');
                                 setShowFeedbackInput(true);
                               }}
-                              className={`p-1.5 rounded transition-colors ${feedbackType === 'dislike' ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-900 hover:bg-slate-850 text-slate-400'}`}
+                              className={`p-1.5 rounded border transition-colors ${feedbackType === 'dislike' ? 'bg-rose-500/15 text-rose-600 border-rose-500/30' : 'bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] border-[var(--border-main)]/50'}`}
                               title="Diretriz com Lacuna / Errada"
                             >
                               <ThumbsDown className="w-3.5 h-3.5" />
@@ -499,18 +577,18 @@ export default function App() {
                             value={feedbackComment}
                             onChange={(e) => setFeedbackComment(e.target.value)}
                             rows={2}
-                            className="w-full p-2 bg-slate-900 border border-slate-800 rounded text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                            className="w-full p-2 bg-[var(--bg-body)] border border-[var(--border-main)] rounded text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]"
                           />
                           <div className="flex justify-end gap-1.5 text-[10px]">
                             <button
                               onClick={() => setShowFeedbackInput(false)}
-                              className="px-2.5 py-1 text-slate-400 hover:text-slate-200"
+                              className="px-2.5 py-1 text-[var(--text-muted)] hover:text-[var(--text-main)] font-semibold"
                             >
                               Cancelar
                             </button>
                             <button
                               onClick={() => submitFeedback((latestBotResponse as any).logId)}
-                              className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded"
+                              className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded"
                             >
                               Registrar Feedback
                             </button>
@@ -526,9 +604,9 @@ export default function App() {
 
             {/* simulated thinking container */}
             {loading && (
-              <div className="p-4 bg-slate-900/30 border border-slate-850 rounded-xl flex items-center gap-3" id="active-thinking">
-                <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" />
-                <span className="text-xs text-slate-400">Consultando base estruturada e gerando diretrizes operacionais...</span>
+              <div className="p-4 bg-[var(--bg-panel)]/30 border border-[var(--border-main)] rounded-xl flex items-center gap-3" id="active-thinking">
+                <Sparkles className="w-4 h-4 text-[var(--accent-color)] animate-spin" />
+                <span className="text-xs text-[var(--text-muted)]">Consultando base estruturada e gerando diretrizes operacionais...</span>
               </div>
             )}
 
@@ -536,9 +614,9 @@ export default function App() {
           </div>
 
           {/* Quick suggestions area */}
-          <div className="px-5 py-3.5 bg-slate-950/50 border-t border-slate-800/85">
-            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2 flex items-center gap-1.5">
-              <Compass className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="px-5 py-3.5 bg-[var(--bg-panel)]/50 border-t border-[var(--border-main)]">
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-2 flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5 text-[var(--accent-color)]" />
               Menu de Playbooks de Operação de CS
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -550,10 +628,10 @@ export default function App() {
                   id={`sug-btn-${sug.label.toLowerCase().replace(/\s+/g, '-')}`}
                   className={`text-[10px] p-2 text-left rounded-lg border transition-all flex gap-2 items-start disabled:opacity-40 ${sug.color}`}
                 >
-                  <sug.icon className="w-3.5 h-3.5 shrink-0 text-cyan-400 mt-0.5" />
+                  <sug.icon className="w-3.5 h-3.5 shrink-0 text-[var(--accent-color)] mt-0.5" />
                   <div className="flex-1 min-w-0">
-                    <span className="font-bold block text-slate-200 tracking-wide text-[10.5px]">{sug.label}</span>
-                    <span className="text-slate-400 block truncate text-[9px] mt-0.5">{sug.text}</span>
+                    <span className="font-bold block text-[var(--text-main)] tracking-wide text-[10.5px]">{sug.label}</span>
+                    <span className="text-[var(--text-muted)] block truncate text-[9px] mt-0.5">{sug.text}</span>
                   </div>
                 </button>
               ))}
@@ -563,7 +641,7 @@ export default function App() {
           {/* Chat Form Input */}
           <form 
             onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
-            className="p-4 border-t border-slate-800 bg-[#090b11] flex items-center gap-2"
+            className="p-4 border-t app-border bg-[var(--bg-app)] flex items-center gap-2"
           >
             <input
               type="text"
@@ -571,13 +649,13 @@ export default function App() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               disabled={loading}
-              className="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-60 font-medium"
+              className="flex-1 px-4 py-3 bg-[var(--bg-body)] border app-border rounded-lg text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-cyan-500/50 transition-all disabled:opacity-60 font-medium"
               id="chat-query-input"
             />
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="px-4 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-semibold transition-all shadow-md flex items-center justify-center shrink-0 text-xs"
+              className="px-4 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:bg-[var(--bg-body)] disabled:text-[var(--text-muted)] text-white font-semibold transition-all shadow-md flex items-center justify-center shrink-0 text-xs"
               title="Analisar Caso"
               id="chat-send-submit"
             >
@@ -587,23 +665,121 @@ export default function App() {
           </form>
         </div>
 
-        {/* Right Side: Tabbed Interactive Visualizations (Concept Graph or Auditor Panel) */}
-        <div className={`h-full flex relative transition-all duration-300 ${showAuditPanel ? 'w-1/2' : 'w-1/2'}`} id="visualization-section">
+        {/* Right Side: Tabbed Interactive Visualizations (Concept Graph, Stats, KB Manager, or Auditor Panel) */}
+        <div className={`h-full flex flex-col relative bg-[var(--bg-app)] border-l app-border transition-all duration-300 ${isFocusMode ? 'w-0 overflow-hidden opacity-0 pointer-events-none hidden' : 'w-1/2'}`} id="visualization-section">
           
-          {/* Main dynamic viewport panel */}
-          <div className="flex-1 h-full flex">
-            {/* The Obsidian-like Concept Graph stays active on the left of this split if audit panel is shown, or occupies 100% */}
-            <div className={`h-full transition-all duration-300 ${showAuditPanel ? 'w-1/2' : 'w-full'}`}>
-              <ConceptGraph 
-                graphData={graphData} 
-                highlightedNodeIds={highlightedNodeIds}
-                onSelectNode={handleSelectNodeFromGraph}
-              />
-            </div>
+          {/* Workstation Top Tab Bar */}
+          {!isFocusMode && (
+            <div className="h-12 border-b app-border bg-[var(--bg-panel)] px-4 flex items-center justify-between z-10 shrink-0 select-none">
+              <div className="flex gap-1.5 h-full items-center">
+                {/* Tab 1: Graph */}
+                <button
+                  onClick={() => setActiveRightTab('graph')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    activeRightTab === 'graph'
+                      ? 'bg-cyan-600/15 text-[var(--accent-color)] border border-[var(--accent-color)]/25'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] border border-transparent'
+                  }`}
+                  id="tab-btn-graph"
+                >
+                  <Network className="w-3.5 h-3.5" />
+                  <span>Grafo</span>
+                </button>
 
-            {/* Audit panel slides in or renders dynamically if enabled */}
-            {showAuditPanel && (
-              <div className="w-1/2 h-full">
+                {/* Tab 2: Operational Intelligence */}
+                <button
+                  onClick={() => setActiveRightTab('stats')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    activeRightTab === 'stats'
+                      ? 'bg-cyan-600/15 text-[var(--accent-color)] border border-[var(--accent-color)]/25'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] border border-transparent'
+                  }`}
+                  id="tab-btn-stats"
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Inteligência & Gaps</span>
+                </button>
+
+                {/* Tab 3: KB Manager */}
+                <button
+                  onClick={() => setActiveRightTab('kb')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all relative ${
+                    activeRightTab === 'kb'
+                      ? 'bg-cyan-600/15 text-[var(--accent-color)] border border-[var(--accent-color)]/25'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] border border-transparent'
+                  }`}
+                  id="tab-btn-kb"
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  <span>Gerenciar Base (KB)</span>
+                  {kbDraft && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--accent-color)] rounded-full animate-pulse border border-[var(--bg-panel)]" />
+                  )}
+                </button>
+
+                {/* Tab 4: Audit Dashboard */}
+                <button
+                  onClick={() => setActiveRightTab('audit')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    activeRightTab === 'audit'
+                      ? 'bg-cyan-600/15 text-[var(--accent-color)] border border-[var(--accent-color)]/25'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-main)] border border-transparent'
+                  }`}
+                  id="tab-btn-audit"
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>Auditoria</span>
+                </button>
+              </div>
+
+              <div className="text-[10px] text-[var(--text-muted)] font-mono font-bold uppercase hidden sm:block">
+                {activeRightTab === 'graph' && 'Mapeamento de Conceitos'}
+                {activeRightTab === 'stats' && 'Métricas Operacionais'}
+                {activeRightTab === 'kb' && 'Edição de Playbooks'}
+                {activeRightTab === 'audit' && 'Terminal de Auditoria'}
+              </div>
+            </div>
+          )}
+
+          {/* Main dynamic viewport panel */}
+          <div className="flex-1 h-full min-h-0 relative overflow-hidden">
+            {activeRightTab === 'graph' && (
+              <div className="w-full h-full">
+                <ConceptGraph 
+                  graphData={graphData} 
+                  highlightedNodeIds={highlightedNodeIds}
+                  onSelectNode={handleSelectNodeFromGraph}
+                />
+              </div>
+            )}
+
+            {activeRightTab === 'stats' && (
+              <div className="w-full h-full">
+                <OperationalIntelligence
+                  logs={auditLogs}
+                  allNodes={graphData.nodes}
+                  onSelectNode={handleSelectNodeFromGraph}
+                  onSelectTab={(tab, draftData) => {
+                    setActiveRightTab(tab);
+                    if (draftData) setKbDraft(draftData);
+                  }}
+                />
+              </div>
+            )}
+
+            {activeRightTab === 'kb' && (
+              <div className="w-full h-full">
+                <KBManager
+                  allNodes={graphData.nodes}
+                  onNodeAdded={fetchGraph}
+                  initialDraft={kbDraft}
+                  onClearDraft={() => setKbDraft(null)}
+                />
+              </div>
+            )}
+
+            {activeRightTab === 'audit' && (
+              <div className="w-full h-full">
                 <AuditDashboard 
                   logs={auditLogs}
                   allNodes={graphData.nodes}
@@ -622,29 +798,29 @@ export default function App() {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="absolute top-0 right-0 w-[420px] h-full bg-[#0d101a] border-l border-slate-800 shadow-2xl z-40 flex flex-col"
+                className="absolute top-0 right-0 w-[420px] h-full bg-[var(--bg-card)] border-l border-[var(--border-main)] shadow-2xl z-40 flex flex-col"
                 id="node-detail-panel"
               >
                 {/* Panel Header */}
-                <div className="p-4 border-b border-slate-800 bg-[#0a0d15] flex items-center justify-between">
+                <div className="p-4 border-b border-[var(--border-main)] bg-[var(--bg-header)] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {selectedNode.type === 'document' ? (
-                      <div className="p-1.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/50">
+                      <div className="p-1.5 rounded bg-[var(--accent-glow)] text-[var(--accent-color)] border border-[var(--accent-color)]/30">
                         <FileText className="w-4 h-4" />
                       </div>
                     ) : (
-                      <div className="p-1.5 rounded bg-indigo-950 text-indigo-400 border border-indigo-800/50">
+                      <div className="p-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                         <Compass className="w-4 h-4" />
                       </div>
                     )}
                     <div className="min-w-0">
-                      <span className="text-[9px] uppercase tracking-widest text-slate-500 font-mono block">Detalhes do {selectedNode.type === 'document' ? 'Documento' : 'Conceito'}</span>
-                      <span className="font-display font-semibold text-xs text-slate-200 block truncate">{selectedNode.title}</span>
+                      <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] font-mono block">Detalhes do {selectedNode.type === 'document' ? 'Documento' : 'Conceito'}</span>
+                      <span className="font-display font-semibold text-xs text-[var(--text-main)] block truncate">{selectedNode.title}</span>
                     </div>
                   </div>
                   <button 
                     onClick={() => setSelectedNode(null)}
-                    className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200"
+                    className="p-1 rounded bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-muted)] hover:text-[var(--text-main)] border border-[var(--border-main)]/60"
                     id="btn-close-node-details"
                   >
                     <X className="w-4 h-4" />
@@ -655,18 +831,18 @@ export default function App() {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {/* Topic Tag */}
                   {selectedNode.type === 'document' && (
-                    <div className="p-2.5 rounded bg-[#0d101a] border border-slate-800/85">
-                      <span className="text-[10px] font-bold text-slate-500 block uppercase mb-1">Tema / Categoria de Negócio</span>
-                      <span className="text-xs text-slate-300 font-semibold">{selectedNode.topic}</span>
+                    <div className="p-2.5 rounded bg-[var(--bg-body)] border border-[var(--border-main)]">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase mb-1">Tema / Categoria de Negócio</span>
+                      <span className="text-xs text-[var(--text-main)] font-semibold">{selectedNode.topic}</span>
                     </div>
                   )}
 
                   {/* Document Content / Concept Description */}
-                  <div className="p-3 bg-slate-900/60 border border-slate-800/80 rounded">
-                    <span className="text-[10px] font-bold text-slate-500 block uppercase mb-1.5 font-mono">
+                  <div className="p-3 bg-[var(--bg-panel)]/40 border border-[var(--border-main)] rounded">
+                    <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase mb-1.5 font-mono">
                       {selectedNode.type === 'document' ? 'Conteúdo da Base Documental' : 'Definição do Conceito'}
                     </span>
-                    <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line font-serif">
+                    <p className="text-xs text-[var(--text-main)] leading-relaxed whitespace-pre-line font-sans">
                       {selectedNode.type === 'document' ? (selectedNode as any).content : (selectedNode as any).description}
                     </p>
                   </div>
@@ -674,10 +850,10 @@ export default function App() {
                   {/* Document Meta / Keywords */}
                   {selectedNode.keywords && selectedNode.keywords.length > 0 && (
                     <div>
-                      <span className="text-[10px] font-bold text-slate-500 block uppercase mb-2 font-mono">Palavras-Chave do Nó</span>
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase mb-2 font-mono">Palavras-Chave do Nó</span>
                       <div className="flex flex-wrap gap-1.5">
                         {selectedNode.keywords.map(kw => (
-                          <span key={kw} className="px-2 py-0.5 rounded bg-slate-800 text-[10px] text-slate-400 border border-slate-700/60">
+                          <span key={kw} className="px-2 py-0.5 rounded bg-[var(--bg-panel)] text-[10px] text-[var(--text-muted)] border border-[var(--border-main)]">
                             #{kw}
                           </span>
                         ))}
@@ -687,7 +863,7 @@ export default function App() {
 
                   {/* Connected nodes (Traverse and list matching connections) */}
                   <div>
-                    <span className="text-[10px] font-bold text-slate-500 block uppercase mb-2 font-mono">Artigos e Conceitos Relacionados</span>
+                    <span className="text-[10px] font-bold text-[var(--text-muted)] block uppercase mb-2 font-mono">Artigos e Conceitos Relacionados</span>
                     <div className="space-y-1.5">
                       {graphData.edges
                         .filter(edge => edge.source === selectedNode.id || edge.target === selectedNode.id)
@@ -700,13 +876,13 @@ export default function App() {
                             <div 
                               key={i}
                               onClick={() => setSelectedNode(otherNode)}
-                              className="flex items-center justify-between p-2 rounded bg-[#101422]/60 hover:bg-[#151a2d]/80 border border-slate-800/60 cursor-pointer text-xs transition-colors"
+                              className="flex items-center justify-between p-2 rounded bg-[var(--bg-panel)] hover:bg-[var(--bg-card-hover)] border border-[var(--border-main)] cursor-pointer text-xs transition-colors"
                             >
                               <div className="flex items-center gap-2">
                                 <span className={`w-1.5 h-1.5 rounded-full ${otherNode.type === 'document' ? 'bg-cyan-400' : 'bg-indigo-400'}`}></span>
-                                <span className="text-slate-300 truncate font-medium max-w-[260px]">{otherNode.title}</span>
+                                <span className="text-[var(--text-main)] truncate font-medium max-w-[260px]">{otherNode.title}</span>
                               </div>
-                              <span className="text-[9px] font-mono uppercase bg-slate-950 px-1.5 py-0.5 rounded text-slate-500">
+                              <span className="text-[9px] font-mono uppercase bg-[var(--bg-body)] px-1.5 py-0.5 rounded text-[var(--text-muted)] border border-[var(--border-main)]/50">
                                 {edge.label || 'Vinculado'}
                               </span>
                             </div>
@@ -717,8 +893,8 @@ export default function App() {
                 </div>
 
                 {/* Audit Safety Warning */}
-                <div className="p-3 bg-slate-950/80 border-t border-slate-850 text-[10px] text-slate-400 flex items-center gap-2">
-                  <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <div className="p-3 bg-[var(--bg-panel)] border-t border-[var(--border-main)] text-[10px] text-[var(--text-muted)] flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5 text-[var(--text-muted)]/70 shrink-0" />
                   <span>Ambiente de auditoria interno. Conteúdo restrito de CS.</span>
                 </div>
               </motion.div>
