@@ -48,7 +48,7 @@ O contrato de cada resposta contém `respostaObjetiva`, `fontes`, `justificativa
 
 ## Modos de resposta
 
-### Simulação local — recomendado para avaliação
+### Simulação local 
 
 - não usa rede externa;
 - não requer chave de API;
