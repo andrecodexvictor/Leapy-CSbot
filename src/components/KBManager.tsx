@@ -256,7 +256,7 @@ export default function KBManager({ allNodes, onNodeAdded, initialDraft, onClear
       {/* Draft Notification Alert */}
       {initialDraft && (
         <div className="p-3 bg-[var(--accent-glow)] border-b border-[var(--accent-color)]/20 flex items-start gap-2.5">
-          <Sparkles className="w-4 h-4 text-[var(--accent-color)] shrink-0 mt-0.5 animate-bounce" />
+          <Sparkles className="w-4 h-4 text-[var(--accent-color)] shrink-0 mt-0.5" />
           <div className="min-w-0 flex-1">
             <span className="text-[10px] font-bold text-[var(--accent-color)] uppercase font-mono block">Rascunho Inteligente de IA Carregado</span>
             <p className="text-[10.5px] text-[var(--text-muted)] leading-normal mt-0.5">

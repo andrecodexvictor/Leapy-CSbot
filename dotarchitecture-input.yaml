@@ -1,0 +1,29 @@
+# dotarchitecture configuration file
+project:
+  name: "Leapy CSbot"
+  targetStack: "typescript/express"
+
+context:
+  teamSize: 1
+  teamMaturity: "intermediate"
+  domainComplexity: "medium"
+  scale: "medium"
+  availability: "medium"
+  auditability: true
+
+overrides:
+  architecture: "monolith"
+  pattern: "layered"
+
+rules:
+  minTeamSizeForMicroservices: 15
+  minScaleForEventDriven: "high"
+  maxMaturityForActiveRecord: "junior"
+
+templatesDir: "./custom-templates"
+
+hooks:
+  onArchitectureChange: "echo 'Architecture changed!'"
+  onNewModuleDesigned: "echo 'New module designed!'"
+  plugins: []
+

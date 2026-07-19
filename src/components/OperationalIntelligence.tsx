@@ -112,7 +112,7 @@ export default function OperationalIntelligence({ logs, allNodes, onSelectNode, 
           <div className="p-3 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg flex flex-col justify-between">
             <div>
               <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider font-mono">Precisão da Base</span>
-              <p className="text-2xl font-black text-indigo-400 mt-1 font-mono">
+              <p className="text-2xl font-bold text-[var(--accent-color)] mt-1 font-mono">
                 {stats ? stats.feedback.ratingPercentage : 100}%
               </p>
             </div>
@@ -122,11 +122,11 @@ export default function OperationalIntelligence({ logs, allNodes, onSelectNode, 
           <div className="p-3 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-lg flex flex-col justify-between">
             <div>
               <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider font-mono">Cobertura de Casos</span>
-              <p className="text-2xl font-black text-violet-400 mt-1 font-mono">
+              <p className="text-2xl font-bold text-[var(--accent-alt)] mt-1 font-mono">
                 {stats ? Math.round(100 - (stats.gaps.length / (stats.totalAudits || 1)) * 100) : 100}%
               </p>
             </div>
-            <p className="text-[9px] text-[var(--text-muted)] mt-2">Percentual de consultas que acionaram documentos homologados.</p>
+            <p className="text-[9px] text-[var(--text-muted)] mt-2">Percentual de consultas que acionaram documentos da base.</p>
           </div>
         </div>
 

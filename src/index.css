@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
   --color-brand-50: #f4f8fa;
   --color-brand-100: #e2eff5;
@@ -47,21 +47,23 @@
 
 /* Theme 2: Leapy Claro (Light Variant of Suggested Palette) */
 .theme-slate-light {
-  --bg-body: #F8FAFC;
-  --bg-app: #F8FAFC;
+  color-scheme: light;
+  --bg-body: #F4F7FA;
+  --bg-app: #EDF2F6;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
+  --bg-card-hover: #EAF1F5;
   --bg-header: #FFFFFF;
-  --bg-panel: #F1F5F9;
-  --border-main: #CBD5E1;
-  --border-muted: #E2E8F0;
-  --text-main: #0F172A;
-  --text-muted: #475569;
-  --text-highlight: #0284C7;
-  --accent-color: #0284C7;
-  --accent-alt: #16A34A;
-  --warning-color: #D97706;
-  --accent-glow: rgba(14, 165, 233, 0.08);
+  --bg-panel: #F8FAFC;
+  --border-main: #D2DCE5;
+  --border-muted: #E4EAF0;
+  --text-main: #152235;
+  --text-muted: #526176;
+  --text-highlight: #086F8C;
+  --accent-color: #086F8C;
+  --accent-strong: #075D76;
+  --accent-alt: #167052;
+  --warning-color: #9A5609;
+  --accent-glow: #E7F4F8;
 
   --badge-success-bg: #DCFCE7;
   --badge-success-text: #15803D;
@@ -107,6 +109,44 @@
   --badge-danger-border: rgba(239, 68, 68, 0.3);
 }
 
+/* Theme 4: Leapy Premium Brand (Purple, Green & Glassmorphism) */
+.theme-leapy-premium {
+  --bg-body: #06050b;
+  --bg-app: #090812;
+  --bg-card: #121020;
+  --bg-card-hover: #1c1933;
+  --bg-header: #0d0b18;
+  --bg-panel: #121020;
+  --border-main: rgba(139, 92, 246, 0.15);
+  --border-muted: rgba(139, 92, 246, 0.08);
+  --text-main: #f3f1f7;
+  --text-muted: #9f9bb3;
+  --text-highlight: #10b981;
+  --accent-color: #8b5cf6;
+  --accent-alt: #10b981;
+  --warning-color: #f59e0b;
+  --accent-glow: rgba(139, 92, 246, 0.15);
+
+  --badge-success-bg: rgba(16, 185, 129, 0.1);
+  --badge-success-text: #34d399;
+  --badge-success-border: rgba(16, 185, 129, 0.2);
+
+  --badge-warning-bg: rgba(245, 158, 11, 0.1);
+  --badge-warning-text: #fbbf24;
+  --badge-warning-border: rgba(245, 158, 11, 0.2);
+
+  --badge-danger-bg: rgba(239, 68, 68, 0.1);
+  --badge-danger-text: #fca5a5;
+  --badge-danger-border: rgba(239, 68, 68, 0.2);
+}
+
+/* Glassmorphism glass effect overlay */
+.glass-effect {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+
 /* Dynamic CSS Variable utility wrappers */
 .app-bg-main { background-color: var(--bg-body); }
 .app-bg-app { background-color: var(--bg-app); }
@@ -126,23 +166,110 @@ html, body, #root {
   background-color: var(--bg-body);
   color: var(--text-main);
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+body {
+  text-rendering: optimizeLegibility;
 }
-::-webkit-scrollbar-track {
-  background: var(--bg-app);
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border-main);
-  border-radius: 4px;
+
+button,
+select {
+  touch-action: manipulation;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
+
+:where(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Readability floor for dense operational UI. */
+.text-\[8px\],
+.text-\[8\.5px\],
+.text-\[9px\] {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+}
+
+.text-\[10px\],
+.text-\[10\.5px\] {
+  font-size: 0.75rem;
+  line-height: 1.05rem;
+}
+
+.text-\[11px\],
+.text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.theme-slate-light .brand-logo-frame {
+  background: #ffffff;
+  border-color: var(--border-main);
+}
+
+/* Hard-coded semantic hues need darker light-theme counterparts. */
+.theme-slate-light .text-cyan-300,
+.theme-slate-light .text-cyan-400 {
+  color: #086f8c;
+}
+
+.theme-slate-light .text-emerald-300,
+.theme-slate-light .text-emerald-400 {
+  color: #167052;
+}
+
+.theme-slate-light .text-indigo-300,
+.theme-slate-light .text-indigo-400 {
+  color: #4f5294;
+}
+
+.theme-slate-light .text-purple-400 {
+  color: #6d478e;
+}
+
+.theme-slate-light .bg-cyan-600 {
+  background-color: #086f8c;
+}
+
+.theme-slate-light .hover\:bg-cyan-500:hover {
+  background-color: #075d76;
+}
+
+.theme-slate-light button.bg-cyan-600:disabled {
+  background-color: var(--bg-body);
+  color: var(--text-muted);
+}
+
+.theme-slate-light .shadow-lg,
+.theme-slate-light .shadow-md,
+.theme-slate-light .shadow-sm {
+  box-shadow: none;
+}
+
+@media (max-width: 1180px) {
+  .workspace-secondary-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 

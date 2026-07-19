@@ -56,9 +56,9 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
           <meta charset="utf-8">
           <title>Dossiê de Auditoria Leapy - ${log.id}</title>
           <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
             body {
-              font-family: 'Inter', system-ui, -apple-system, sans-serif;
+              font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
               color: #0F172A;
               background: #FFFFFF;
               padding: 40px;
@@ -111,7 +111,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
             }
             .query-box {
               background: #F8FAFC;
-              border-left: 4px solid #0284C7;
+              border: 1px solid #CBD5E1;
               padding: 12px 16px;
               border-radius: 4px;
               font-style: italic;
@@ -288,7 +288,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
 
           <div class="section-title">Diretriz Operacional Emitida</div>
           <div class="highlight-box">
-            <div class="content-header" style="color: #0369A1;">1. Diretriz Homologada</div>
+            <div class="content-header" style="color: #0369A1;">1. Diretriz com Referência</div>
             <div class="highlight-text">
               ${blocks.respostaObjetiva || (log as any).text || ''}
             </div>
@@ -310,7 +310,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
           </div>
 
           ${blocks.ressalvas ? `
-          <div class="content-block" style="border-left: 4px solid #D97706; background: #FFFDF5;">
+          <div class="content-block" style="border: 1px solid #F1C27D; background: #FFFDF5;">
             <div class="content-header" style="color: #B45309;">Observações & Ressalvas</div>
             <div class="content-text">${blocks.ressalvas}</div>
           </div>
@@ -365,7 +365,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
 
           <div class="footer">
             <span>Leapy CSbot © 2026</span>
-            <span>Relatório Autêntico Homologado</span>
+            <span>Relatório de Auditoria do Protótipo</span>
             <span>Página 1 de 1</span>
           </div>
         </body>
@@ -693,7 +693,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
             {/* Modal Body (Scrollable) */}
             <div className="p-6 overflow-y-auto space-y-5 text-xs text-[var(--text-main)]">
               {/* Question */}
-              <div className="p-3.5 bg-[var(--bg-body)]/60 border border-[var(--border-main)] rounded-lg border-l-4 border-l-[var(--accent-color)]">
+              <div className="p-3.5 bg-[var(--bg-body)]/60 border border-[var(--border-main)] rounded-lg">
                 <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider block font-mono">Consulta Submetida</span>
                 <p className="font-semibold text-xs text-[var(--text-main)] mt-1 italic">
                   "{selectedLogForModal.query}"
@@ -879,7 +879,7 @@ export default function AuditDashboard({ logs, allNodes, onClearLogs, onSelectNo
                   </div>
                   <div>
                     <span className="font-sans block text-[8px] text-[var(--text-muted)]/70 uppercase">Filtro de Segurança</span>
-                    <span className="text-emerald-400 font-semibold">Ativo (100% Block)</span>
+                    <span className="text-emerald-400 font-semibold">Bloqueio ativo</span>
                   </div>
                 </div>
               </div>

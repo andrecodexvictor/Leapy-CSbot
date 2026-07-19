@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leapy CSbot — Proposta de solução — André Victor Andrade Oliveira Santos</title>
+  <style>
+    :root {
+      --plum: #1d0328;
+      --plum-2: #351044;
+      --blue: #264fec;
+      --blue-2: #2f5dff;
+      --mint: #35dcb2;
+      --coral: #f64d43;
+      --ink: #212121;
+      --muted: #64646c;
+      --line: #dedee5;
+      --soft: #f5f5f8;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    @page { size: A4; margin: 0; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #d9d9de;
+      color: var(--ink);
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.45;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto 8mm;
+      padding: 17mm 17mm 15mm;
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .page:last-child { page-break-after: auto; }
+    .page.dark { background: var(--plum); color: var(--white); }
+    .page.blue { background: var(--blue); color: var(--white); }
+    .page.soft { background: var(--soft); }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 35pt; line-height: 0.98; letter-spacing: -0.035em; margin-bottom: 8mm; }
+    h2 { font-size: 24pt; line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 7mm; }
+    h3 { font-size: 12.5pt; line-height: 1.2; margin-bottom: 2.5mm; }
+    p { margin-bottom: 3.5mm; }
+    strong { font-weight: 700; }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8mm;
+      margin-bottom: 14mm;
+      position: relative;
+      z-index: 2;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 2.5mm;
+      font-size: 15pt;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .wordmark svg { width: 7mm; height: 7mm; color: var(--mint); }
+    .wordmark.dark-logo { color: var(--plum); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 2mm;
+      border: 1px solid currentColor;
+      border-radius: 99px;
+      padding: 1.6mm 3.4mm;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .dark .pill { color: var(--mint); }
+    .eyebrow { color: var(--blue); font-weight: 800; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 3mm; }
+    .dark .eyebrow, .blue .eyebrow { color: var(--mint); }
+
+    .lead { font-size: 14pt; line-height: 1.4; letter-spacing: -0.01em; max-width: 142mm; }
+    .muted { color: var(--muted); }
+    .dark .muted, .blue .muted { color: rgba(255,255,255,.7); }
+    .small { font-size: 8.5pt; }
+    .tiny { font-size: 7.5pt; }
+
+    .footer {
+      position: absolute;
+      left: 17mm;
+      right: 17mm;
+      bottom: 9mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 7.5pt;
+    }
+
+    .dark .footer, .blue .footer { color: rgba(255,255,255,.6); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 4mm;
+      padding: 5mm;
+      background: var(--white);
+    }
+
+    .dark .panel,
+    .blue .panel {
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+
+    .number {
+      width: 8mm;
+      height: 8mm;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--mint);
+      color: var(--plum);
+      border-radius: 50%;
+      font-size: 8.5pt;
+      font-weight: 800;
+      margin-bottom: 3mm;
+    }
+
+    .metric {
+      font-size: 24pt;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--blue);
+      line-height: 1;
+      margin-bottom: 1.5mm;
+    }
+
+    .checklist { list-style: none; margin: 0; padding: 0; }
+    .checklist li { position: relative; padding-left: 6mm; margin-bottom: 2.5mm; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--mint); font-weight: 900; }
+    .checklist.dark-check li::before { color: var(--blue); }
+
+    .challenge {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 5mm 0;
+      margin: 5mm 0 7mm;
+      font-size: 13pt;
+      line-height: 1.42;
+      font-weight: 650;
+      letter-spacing: -0.015em;
+    }
+
+    .screenshot-shell {
+      background: var(--plum);
+      border-radius: 5mm;
+      padding: 2.2mm;
+      margin-top: 4mm;
+    }
+
+    .screenshot-shell img {
+      display: block;
+      width: 100%;
+      border-radius: 3.2mm;
+      background: #eef2f6;
+    }
+
+    .screenshot-shell.compact-shot img {
+      height: 70mm;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .callout-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin-top: 4mm; }
+    .callout { border-top: 2px solid var(--blue); padding-top: 2.5mm; font-size: 8.5pt; }
+    .callout strong { display: block; margin-bottom: 1mm; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 3.5mm;
+      align-items: stretch;
+      margin: 7mm 0;
+    }
+
+    .flow-step {
+      min-height: 35mm;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      border-radius: 4mm;
+      padding: 4mm;
+      position: relative;
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -3.5mm;
+      top: 14mm;
+      color: var(--mint);
+      font-size: 12pt;
+      z-index: 2;
+    }
+
+    .flow-step .tag { color: var(--mint); font-size: 7pt; font-weight: 800; letter-spacing: .08em; margin-bottom: 2mm; }
+    .flow-step h3 { font-size: 10pt; margin-bottom: 2mm; }
+    .flow-step p { font-size: 7.5pt; color: rgba(255,255,255,.68); margin: 0; }
+
+    .answer-anatomy {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 7mm;
+      align-items: start;
+    }
+
+    .answer-block { border-bottom: 1px solid var(--line); padding: 3.2mm 0; }
+    .answer-block:last-child { border-bottom: 0; }
+    .answer-block span { color: var(--blue); font-size: 7.5pt; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+    .answer-block p { margin: 1mm 0 0; font-size: 9pt; }
+
+    .safe-box { background: #f0fffa; border: 1px solid #aeeedc; border-radius: 4mm; padding: 5mm; }
+    .safe-box h3 { color: #116b56; }
+
+    .score-layout { display: grid; grid-template-columns: 45mm 1fr; gap: 9mm; align-items: start; }
+    .score-ring {
+      width: 42mm;
+      height: 42mm;
+      border-radius: 50%;
+      background: conic-gradient(var(--blue) 0 83%, #e4e4ea 83% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .score-ring::after { content: ""; position: absolute; inset: 4mm; border-radius: 50%; background: var(--soft); }
+    .score-ring strong { position: relative; z-index: 1; font-size: 21pt; color: var(--plum); letter-spacing: -0.05em; }
+
+    .bar-row { display: grid; grid-template-columns: 39mm 1fr 11mm; gap: 3mm; align-items: center; margin-bottom: 2.3mm; font-size: 8.3pt; }
+    .bar { height: 2.3mm; border-radius: 99px; background: #e0e0e7; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: var(--blue); border-radius: inherit; }
+
+    .priority { display: grid; grid-template-columns: 17mm 1fr; gap: 4mm; padding: 3.5mm 0; border-top: 1px solid var(--line); }
+    .priority-label { font-size: 8pt; font-weight: 800; color: var(--coral); }
+    .priority h3 { margin: 0 0 1mm; font-size: 10pt; }
+    .priority p { margin: 0; font-size: 8.3pt; color: var(--muted); }
+
+    .timeline { position: relative; margin-top: 5mm; }
+    .timeline::before { content: ""; position: absolute; left: 16mm; top: 4mm; bottom: 4mm; width: 1px; background: rgba(255,255,255,.28); }
+    .timeline-item { display: grid; grid-template-columns: 12mm 1fr; gap: 8mm; margin-bottom: 4.5mm; position: relative; }
+    .timeline-time { color: var(--mint); font-size: 8pt; font-weight: 800; }
+    .timeline-copy { border: 1px solid rgba(255,255,255,.16); border-radius: 3mm; padding: 3.2mm 4mm; background: rgba(255,255,255,.06); }
+    .timeline-copy strong { display: block; font-size: 9pt; margin-bottom: 1mm; }
+    .timeline-copy p { margin: 0; font-size: 8pt; color: rgba(255,255,255,.76); }
+
+    .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; margin: 5mm 0 8mm; }
+    .swatch { border: 1px solid var(--line); border-radius: 3mm; overflow: hidden; background: white; }
+    .swatch-color { height: 17mm; }
+    .swatch-label { padding: 2.5mm; font-size: 7.5pt; }
+    .swatch-label strong { display: block; font-size: 8.5pt; }
+
+    .cover-accent {
+      position: absolute;
+      width: 118mm;
+      height: 118mm;
+      border-radius: 50%;
+      background: var(--blue);
+      right: -45mm;
+      top: 63mm;
+    }
+    .cover-accent::after {
+      content: "";
+      position: absolute;
+      width: 46mm;
+      height: 46mm;
+      border-radius: 50%;
+      background: var(--mint);
+      left: 8mm;
+      bottom: -9mm;
+    }
+
+    .cover-copy { position: relative; z-index: 2; margin-top: 28mm; max-width: 138mm; }
+    .cover-copy h1 { font-size: 43pt; max-width: 135mm; }
+    .cover-copy .lead { max-width: 125mm; color: rgba(255,255,255,.76); }
+    .candidate { position: absolute; z-index: 2; left: 17mm; bottom: 31mm; }
+    .candidate span { display: block; color: var(--mint); font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 800; margin-bottom: 2mm; }
+    .candidate strong { font-size: 13pt; }
+
+    .brand-note { border: 1px solid var(--line); border-radius: 3mm; padding: 4mm; background: var(--soft); font-size: 8pt; }
+    .sources { font-size: 7.5pt; color: var(--muted); word-break: break-word; }
+
+    @media print {
+      body { background: transparent; }
+      .page { margin: 0; }
+    }
+
+    @media screen {
+      body:has(.page:target) .page:not(:target) { display: none; }
+      .page:target { margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="page dark" id="page-1">
+    <div class="cover-accent"></div>
+    <div class="topline">
+      <div class="wordmark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round"><path d="M12 11.5C9.5 8.5 6 6 6 6"/><path d="M12 11.5C14.5 8.5 18 6 18 6"/><path d="M12 11.5C12 15 11 19 9.5 20"/></svg>
+        <span>leapy</span>
+      </div>
+      <span class="pill">Fellowship · Desafio técnico</span>
+    </div>
+
+    <div class="cover-copy">
+      <div class="eyebrow">Proposta de solução · 2026</div>
+      <h1>Leapy<br/>CSbot</h1>
+      <p class="lead">Um copiloto de Customer Success que transforma documentos em respostas rastreáveis, decisões seguras e aprendizado contínuo.</p>
+    </div>
+
+    <div class="candidate">
+      <span>Candidato</span>
+      <strong>André Victor Andrade Oliveira Santos</strong>
+    </div>
+
+    <div class="footer">
+      <span>Material de detalhamento e apoio</span>
+      <span>19 de julho de 2026 · 01</span>
+    </div>
+  </section>
+
+  <section class="page" id="page-2">
+    <div class="topline">
+      <div class="wordmark dark-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round"><path d="M12 11.5C9.5 8.5 6 6 6 6"/><path d="M12 11.5C14.5 8.5 18 6 18 6"/><path d="M12 11.5C12 15 11 19 9.5 20"/></svg>
+        <span>leapy</span>
+      </div>
+      <span class="pill" style="color:var(--blue)">A proposta</span>
+    </div>
+
+    <div class="eyebrow">Resposta ao desafio</div>
+    <h2>Mais do que responder:<br/>permitir confiar.</h2>
+    <div class="challenge">“A partir de documentos fictícios de ajuda da Leapy, construir um assistente para CS que cite a fonte e apresente o raciocínio.”</div>
+
+    <div class="grid-3">
+      <div class="panel">
+        <span class="number">1</span>
+        <h3>Recuperar evidências</h3>
+        <p class="small muted">Busca em títulos, palavras-chave e conteúdo, seguida de expansão pelos relacionamentos do grafo.</p>
+      </div>
+      <div class="panel">
+        <span class="number">2</span>
+        <h3>Responder com estrutura</h3>
+        <p class="small muted">Diretriz, justificativa, confiança, risco e próxima ação em campos previsíveis.</p>
+      </div>
+      <div class="panel">
+        <span class="number">3</span>
+        <h3>Aprender com o uso</h3>
+        <p class="small muted">Auditoria, feedback e gaps convertem dúvidas reais em melhoria contínua da base.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:7mm">
+      <div>
+        <div class="eyebrow">O que foi entregue</div>
+        <ul class="checklist dark-check">
+          <li>Assistente operacional com perguntas livres e playbooks.</li>
+          <li>54 nós, 41 relações e 6 playbooks sintéticos adicionais.</li>
+          <li>Grafo interativo com filtros rápidos e personalizados.</li>
+          <li>Fallback seguro, confiança e sinalização de risco.</li>
+          <li>Auditoria, feedback e curadoria de lacunas.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow">Princípio de produto</div>
+        <p class="lead" style="font-size:13pt">O analista deve entender <strong>o que fazer</strong>, <strong>por que fazer</strong> e <strong>onde conferir</strong> — sem depender de confiança cega no modelo.</p>
+      </div>
+    </div>
+
+    <div class="footer"><span>Leapy CSbot · André Victor Andrade Oliveira Santos</span><span>02</span></div>
+  </section>
+
+  <section class="page soft" id="page-3">
+    <div class="topline">
+      <div><div class="eyebrow">Experiência do produto</div><h2 style="margin:0">Uma decisão em uma tela.</h2></div>
+      <span class="pill" style="color:var(--blue)">UI operacional</span>
+    </div>
+
+    <p class="lead" style="font-size:12.5pt; max-width:155mm">A interface prioriza a orientação de CS e mantém a evidência acessível ao lado, sem transformar a experiência em um terminal técnico.</p>
+
+    <div class="screenshot-shell">
+      <img src="../artifacts/leapy-light-final2.png" alt="Interface do Leapy CSbot em modo claro" />
+    </div>
+
+    <div class="callout-row">
+      <div class="callout"><strong>Decisão assistida</strong>Diretriz e justificativa ficam no centro da leitura.</div>
+      <div class="callout"><strong>Evidência navegável</strong>Documentos e conceitos aparecem como nós inspecionáveis.</div>
+      <div class="callout"><strong>Ergonomia de CS</strong>Playbooks reduzem digitação e aceleram a demonstração.</div>
+    </div>
+
+    <div class="grid-4" style="margin-top:7mm">
+      <div><div class="metric">54</div><span class="small muted">nós no grafo</span></div>
+      <div><div class="metric">41</div><span class="small muted">relações</span></div>
+      <div><div class="metric">6</div><span class="small muted">playbooks sintéticos</span></div>
+      <div><div class="metric">4</div><span class="small muted">provedores suportados</span></div>
+    </div>
+
+    <div class="footer"><span>Visão validada em 1920×1080</span><span>03</span></div>
+  </section>
+
+  <section class="page dark" id="page-4">
+    <div class="topline">
+      <div><div class="eyebrow">Arquitetura</div><h2 style="margin:0">Da pergunta à evidência.</h2></div>
+      <span class="pill">RAG + grafo</span>
+    </div>
+
+    <p class="lead">A arquitetura foi pensada para tornar o caminho da resposta observável, mesmo em um protótipo executável localmente.</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="tag">01 · BASE</div><h3>Documentos</h3><p>Chunks fictícios, metadados e playbooks de CS.</p></div>
+      <div class="flow-step"><div class="tag">02 · BUSCA</div><h3>Recuperação</h3><p>Correspondência lexical em título, tags e conteúdo.</p></div>
+      <div class="flow-step"><div class="tag">03 · CONTEXTO</div><h3>Expansão</h3><p>Vizinhos de primeiro grau enriquecem a evidência.</p></div>
+      <div class="flow-step"><div class="tag">04 · SÍNTESE</div><h3>Modelo</h3><p>Instruções restritas e saída JSON estruturada.</p></div>
+      <div class="flow-step"><div class="tag">05 · PROVA</div><h3>Auditoria</h3><p>Nós usados, confiança, feedback e gaps.</p></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Stack executável</h3>
+        <ul class="checklist">
+          <li>React 19 + TypeScript + Vite</li>
+          <li>Express e contratos REST</li>
+          <li>Grafo em memória compilado de documentos</li>
+          <li>Gemini, OpenAI, OpenRouter e NVIDIA NIM</li>
+          <li>Modo de simulação sem credenciais</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Guardrails de resposta</h3>
+        <ul class="checklist">
+          <li>Base documental como limite de contexto</li>
+          <li>Fallback para baixa relevância</li>
+          <li>Confiança e risco visíveis</li>
+          <li>Justificativa curta, sem cadeia privada</li>
+          <li>Próxima ação para o analista</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:6mm; border-color:rgba(53,220,178,.45)">
+      <h3 style="color:var(--mint)">Decisão técnica importante</h3>
+      <p class="small" style="margin:0;color:rgba(255,255,255,.76)">O “raciocínio” apresentado ao usuário é uma justificativa baseada em evidências, não a cadeia interna de pensamento do modelo. Isso preserva clareza, segurança e auditabilidade.</p>
+    </div>
+
+    <div class="footer"><span>Fluxo atual do protótipo</span><span>04</span></div>
+  </section>
+
+  <section class="page" id="page-5">
+    <div class="topline">
+      <div><div class="eyebrow">Anatomia da resposta</div><h2 style="margin:0">Clareza antes da complexidade.</h2></div>
+      <span class="pill" style="color:var(--blue)">Rastreabilidade</span>
+    </div>
+
+    <div class="answer-anatomy">
+      <div>
+        <div class="answer-block"><span>Contexto</span><p>Resume o caso para confirmar o entendimento da pergunta.</p></div>
+        <div class="answer-block"><span>Diretriz operacional</span><p>Entrega a orientação objetiva que o analista pode usar.</p></div>
+        <div class="answer-block"><span>Justificativa</span><p>Conecta a resposta aos documentos recuperados em até duas frases.</p></div>
+        <div class="answer-block"><span>Evidências</span><p>Destaca documentos e conceitos no grafo para inspeção.</p></div>
+        <div class="answer-block"><span>Próxima ação</span><p>Transforma conhecimento em procedimento de CS.</p></div>
+        <div class="answer-block"><span>Risco e confiança</span><p>Ajuda o analista a decidir quando responder ou escalar.</p></div>
+      </div>
+
+      <div>
+        <div class="safe-box">
+          <h3>Fallback seguro</h3>
+          <p class="small">Se preço, SLA, condição contratual ou outro dado não estiver coberto, o sistema recusa a resposta e indica o time responsável.</p>
+          <p class="small" style="margin:0"><strong>Resultado:</strong> menos alucinação e menor risco de promessa comercial indevida.</p>
+        </div>
+        <div class="panel" style="margin-top:5mm">
+          <h3>Filtro personalizado</h3>
+          <p class="small muted">Busca por conteúdo, tipo de nó, tópico, relação com a decisão e origem sintética. O usuário pode construir uma visão específica sem perder o contexto geral.</p>
+        </div>
+        <div class="panel" style="margin-top:5mm">
+          <h3>Origem dos dados</h3>
+          <p class="small muted">Todos os playbooks adicionais estão marcados como <strong>demonstração/fictício</strong>, separando fatos públicos, cenários inventados e guardrails.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-shell compact-shot" style="margin-top:7mm; padding:1.6mm">
+      <img src="../artifacts/graph-custom-filter.png" alt="Grafo com acesso ao filtro personalizado" />
+    </div>
+
+    <div class="footer"><span>Resposta estruturada e evidência navegável</span><span>05</span></div>
+  </section>
+
+  <section class="page soft" id="page-6">
+    <div class="topline">
+      <div><div class="eyebrow">Avaliação crítica</div><h2 style="margin:0">Pronto para o desafio.<br/>Ainda não para produção.</h2></div>
+      <span class="pill" style="color:var(--blue)">Prontidão</span>
+    </div>
+
+    <div class="score-layout">
+      <div class="score-ring"><strong>8,3</strong></div>
+      <div>
+        <div class="bar-row"><span>Aderência</span><div class="bar"><i style="width:90%"></i></div><strong>9,0</strong></div>
+        <div class="bar-row"><span>Produto & UX</span><div class="bar"><i style="width:90%"></i></div><strong>9,0</strong></div>
+        <div class="bar-row"><span>Arquitetura</span><div class="bar"><i style="width:80%"></i></div><strong>8,0</strong></div>
+        <div class="bar-row"><span>Segurança</span><div class="bar"><i style="width:75%"></i></div><strong>7,5</strong></div>
+        <div class="bar-row"><span>Testabilidade</span><div class="bar"><i style="width:70%"></i></div><strong>7,0</strong></div>
+        <div class="bar-row"><span>Visão de evolução</span><div class="bar"><i style="width:90%"></i></div><strong>9,0</strong></div>
+      </div>
+    </div>
+
+    <p class="lead" style="font-size:12pt; margin:8mm 0 5mm">Para um fellowship de tecnologia, a solução é competitiva porque demonstra capacidade de produto, frontend, backend, IA aplicada e julgamento de risco.</p>
+
+    <div class="eyebrow">Ajustes antes do envio</div>
+    <div class="priority">
+      <div class="priority-label">P0 · 01</div>
+      <div><h3>Fonte explícita no contrato</h3><p>Adicionar `fontes: string[]` com 1–3 referências exatas. Hoje a evidência aparece pelos nós destacados, mas a citação deve existir também como dado estruturado.</p></div>
+    </div>
+    <div class="priority">
+      <div class="priority-label">P0 · 02</div>
+      <div><h3>Zero exposição de chave</h3><p>Remover do console até mesmo o prefixo da chave de API. Credenciais não devem aparecer em logs.</p></div>
+    </div>
+    <div class="priority">
+      <div class="priority-label" style="color:var(--blue)">P1 · 03</div>
+      <div><h3>Smoke eval reproduzível</h3><p>Criar 6–10 perguntas com expectativa de intenção, fallback e presença de fonte. Isso transforma confiança subjetiva em evidência.</p></div>
+    </div>
+    <div class="priority">
+      <div class="priority-label" style="color:var(--blue)">P1 · 04</div>
+      <div><h3>README de entrega</h3><p>Documentar execução, arquitetura, limitações, modo simulado e roteiro da demo.</p></div>
+    </div>
+
+    <div class="brand-note" style="margin-top:6mm"><strong>Recomendação:</strong> congelar novas funcionalidades. O maior ganho até o prazo está em fonte explícita, segurança e prova automatizada.</div>
+
+    <div class="footer"><span>Avaliação em 19/07/2026</span><span>06</span></div>
+  </section>
+
+  <section class="page blue" id="page-7">
+    <div class="topline">
+      <div><div class="eyebrow">Vídeo · até 2min30</div><h2 style="margin:0">Roteiro de demonstração.</h2></div>
+      <span class="pill" style="color:var(--mint)">Meta: 2min20</span>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item"><div class="timeline-time">0:00</div><div class="timeline-copy"><strong>Abertura · 15s</strong><p>“Olá, eu sou André Victor Andrade Oliveira Santos. Construí o Leapy CSbot, um copiloto de CS com evidência, justificativa e rastreabilidade.”</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">0:15</div><div class="timeline-copy"><strong>Problema · 20s</strong><p>Explique que rapidez sem segurança não basta; apresente diretriz, risco, confiança e próxima ação.</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">0:35</div><div class="timeline-copy"><strong>Arquitetura · 25s</strong><p>Busca em documentos, expansão pelo grafo e síntese estruturada com limite de contexto.</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">1:00</div><div class="timeline-copy"><strong>Demo principal · 35s</strong><p>Use “Cotas Aprendiz/PCD”. Mostre resposta, justificativa, risco, próxima ação e abra uma evidência.</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">1:35</div><div class="timeline-copy"><strong>Fallback · 20s</strong><p>Pergunte por preço e SLA. Mostre a recusa segura e o escalonamento.</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">1:55</div><div class="timeline-copy"><strong>Auditoria · 20s</strong><p>Mostre feedback, gaps e curadoria. Reforce que o produto aprende com o uso.</p></div></div>
+      <div class="timeline-item"><div class="timeline-time">2:15</div><div class="timeline-copy"><strong>Encerramento · 5s</strong><p>“Resposta rápida para CS, evidência para auditoria e aprendizado contínuo da base. Obrigado.”</p></div></div>
+    </div>
+
+    <div class="panel" style="margin-top:5mm">
+      <h3>Direção de gravação</h3>
+      <p class="small" style="margin:0;color:rgba(255,255,255,.74)">1080p · perguntas previamente preparadas · sem digitação ao vivo · não abrir chaves de API · deixar 10 segundos de margem.</p>
+    </div>
+
+    <div class="footer"><span>Roteiro completo disponível no pacote de entrega</span><span>07</span></div>
+  </section>
+
+  <section class="page" id="page-8">
+    <div class="topline">
+      <div class="wordmark dark-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.8" stroke-linecap="round"><path d="M12 11.5C9.5 8.5 6 6 6 6"/><path d="M12 11.5C14.5 8.5 18 6 18 6"/><path d="M12 11.5C12 15 11 19 9.5 20"/></svg>
+        <span>leapy</span>
+      </div>
+      <span class="pill" style="color:var(--blue)">Direção visual</span>
+    </div>
+
+    <div class="eyebrow">Identidade aplicada ao case</div>
+    <h2>Energia jovem.<br/>Clareza para decidir.</h2>
+    <p class="lead" style="font-size:12pt">O material interpreta os sinais visuais públicos da Leapy: contraste alto, títulos diretos, cores vivas e uma linguagem otimista ligada a movimento, desenvolvimento e impacto.</p>
+
+    <div class="swatches">
+      <div class="swatch"><div class="swatch-color" style="background:#1d0328"></div><div class="swatch-label"><strong>Plum</strong>#1D0328</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#264fec"></div><div class="swatch-label"><strong>Blue</strong>#264FEC</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#35dcb2"></div><div class="swatch-label"><strong>Mint</strong>#35DCB2</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#f64d43"></div><div class="swatch-label"><strong>Coral</strong>#F64D43</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:#ffffff"></div><div class="swatch-label"><strong>White</strong>#FFFFFF</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="eyebrow">Diretrizes</div>
+        <ul class="checklist dark-check">
+          <li>Sans-serif limpa e títulos com peso alto.</li>
+          <li>Azul para ação; verde-mint para progresso.</li>
+          <li>Plum como base institucional de alto contraste.</li>
+          <li>Coral apenas para atenção e prioridade.</li>
+          <li>Copy curta, humana e orientada a resultado.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="eyebrow">Tom do produto</div>
+        <ul class="checklist dark-check">
+          <li>Direto, sem ser frio.</li>
+          <li>Seguro, sem parecer burocrático.</li>
+          <li>Otimista, sem prometer o que não controla.</li>
+          <li>Técnico somente quando ajuda a decisão.</li>
+          <li>Acessível para CS e auditável por especialistas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="brand-note" style="margin-top:7mm">
+      <strong>Nota de uso de marca.</strong> Esta página não substitui um manual oficial da Leapy. Paleta e princípios foram inferidos da presença pública da empresa e aplicados exclusivamente à apresentação deste desafio técnico.
+    </div>
+
+    <div style="margin-top:6mm">
+      <div class="eyebrow">Fontes públicas consultadas</div>
+      <div class="sources">
+        www.leapy.com.br · www.leapy.com.br/sobre-leapy · www.leapy.com.br/dados-para-visibilidade · www.leapy.com.br/formacao-atualizada
+      </div>
+    </div>
+
+    <div style="position:absolute; left:17mm; right:17mm; bottom:25mm; border-top:1px solid var(--line); padding-top:7mm; display:flex; justify-content:space-between; align-items:flex-end">
+      <div><div class="eyebrow">Candidato</div><strong style="font-size:14pt">André Victor Andrade Oliveira Santos</strong></div>
+      <div style="text-align:right"><strong style="color:var(--blue)">Leapy CSbot</strong><br/><span class="small muted">Proposta de solução · 2026</span></div>
+    </div>
+
+    <div class="footer"><span>Obrigado pela oportunidade.</span><span>08</span></div>
+  </section>
+
+</body>
+</html>

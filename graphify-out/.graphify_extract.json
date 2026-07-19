@@ -1,0 +1,2539 @@
+{
+  "nodes": [
+    {
+      "id": "package",
+      "label": "package.json",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_name",
+      "label": "name",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L2",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_private",
+      "label": "private",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_version",
+      "label": "version",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_type",
+      "label": "type",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts_dev",
+      "label": "dev",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts_build",
+      "label": "build",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts_start",
+      "label": "start",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts_clean",
+      "label": "clean",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_scripts_lint",
+      "label": "lint",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies",
+      "label": "dependencies",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_google_genai",
+      "label": "@google/genai",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_tailwindcss_vite",
+      "label": "@tailwindcss/vite",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_vitejs_plugin_react",
+      "label": "@vitejs/plugin-react",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L16",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_lucide_react",
+      "label": "lucide-react",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L17",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_react",
+      "label": "react",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_react_dom",
+      "label": "react-dom",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_vite",
+      "label": "vite",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L20",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_express",
+      "label": "express",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L21",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_dotenv",
+      "label": "dotenv",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L22",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_dependencies_motion",
+      "label": "motion",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L23",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies",
+      "label": "devDependencies",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L25",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_types_node",
+      "label": "@types/node",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_autoprefixer",
+      "label": "autoprefixer",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L27",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_esbuild",
+      "label": "esbuild",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L28",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_tailwindcss",
+      "label": "tailwindcss",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L29",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_tsx",
+      "label": "tsx",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L30",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_typescript",
+      "label": "typescript",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_vite",
+      "label": "vite",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "_origin": "ast"
+    },
+    {
+      "id": "package_devdependencies_types_express",
+      "label": "@types/express",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L33",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_compile_db",
+      "label": "compile_db.py",
+      "file_type": "code",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_compile_db_compile_database",
+      "label": "compile_database()",
+      "file_type": "code",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_graphify",
+      "label": "run_graphify.py",
+      "file_type": "code",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_graphify_run_pipeline",
+      "label": "run_pipeline()",
+      "file_type": "code",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "server",
+      "label": "server.ts",
+      "file_type": "code",
+      "source_file": "server.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_app",
+      "label": "app",
+      "file_type": "code",
+      "source_file": "server.ts",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_auditlogs",
+      "label": "auditLogs",
+      "file_type": "code",
+      "source_file": "server.ts",
+      "source_location": "L17",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_startserver",
+      "label": "startServer()",
+      "file_type": "code",
+      "source_file": "server.ts",
+      "source_location": "L615",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_db",
+      "label": "db.ts",
+      "file_type": "code",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_db_nodes",
+      "label": "NODES",
+      "file_type": "code",
+      "source_file": "server/db.ts",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_db_edges",
+      "label": "EDGES",
+      "file_type": "code",
+      "source_file": "server/db.ts",
+      "source_location": "L776",
+      "_origin": "ast"
+    },
+    {
+      "id": "server_db_retrievewithgraph",
+      "label": "retrieveWithGraph()",
+      "file_type": "code",
+      "source_file": "server/db.ts",
+      "source_location": "L909",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app",
+      "label": "App.tsx",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app_app",
+      "label": "App()",
+      "file_type": "code",
+      "source_file": "src/App.tsx",
+      "source_location": "L40",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_auditdashboard",
+      "label": "AuditDashboard.tsx",
+      "file_type": "code",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_auditdashboard_auditdashboardprops",
+      "label": "AuditDashboardProps",
+      "file_type": "code",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_auditdashboard_auditdashboard",
+      "label": "AuditDashboard()",
+      "file_type": "code",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_conceptgraph",
+      "label": "ConceptGraph.tsx",
+      "file_type": "code",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_conceptgraph_simulatednode",
+      "label": "SimulatedNode",
+      "file_type": "code",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_conceptgraph_conceptgraphprops",
+      "label": "ConceptGraphProps",
+      "file_type": "code",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_conceptgraph_conceptgraph",
+      "label": "ConceptGraph()",
+      "file_type": "code",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L25",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_kbmanager",
+      "label": "KBManager.tsx",
+      "file_type": "code",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_kbmanager_kbmanagerprops",
+      "label": "KBManagerProps",
+      "file_type": "code",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_kbmanager_kbmanager",
+      "label": "KBManager()",
+      "file_type": "code",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_operationalintelligence",
+      "label": "OperationalIntelligence.tsx",
+      "file_type": "code",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_operationalintelligence_operationalintelligenceprops",
+      "label": "OperationalIntelligenceProps",
+      "file_type": "code",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "components_operationalintelligence_operationalintelligence",
+      "label": "OperationalIntelligence()",
+      "file_type": "code",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_badge",
+      "label": "Badge.tsx",
+      "file_type": "code",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_badge_badgeprops",
+      "label": "BadgeProps",
+      "file_type": "code",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_badge_badge",
+      "label": "Badge()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_button",
+      "label": "Button.tsx",
+      "file_type": "code",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_button_buttonprops",
+      "label": "ButtonProps",
+      "file_type": "code",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_button_button",
+      "label": "Button()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card",
+      "label": "Card.tsx",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_cardprops",
+      "label": "CardProps",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_card",
+      "label": "Card()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_cardheader",
+      "label": "CardHeader()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L22",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_cardtitle",
+      "label": "CardTitle()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L30",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_carddescription",
+      "label": "CardDescription()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L38",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_cardcontent",
+      "label": "CardContent()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L46",
+      "_origin": "ast"
+    },
+    {
+      "id": "ui_card_cardfooter",
+      "label": "CardFooter()",
+      "file_type": "code",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L54",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_main",
+      "label": "main.tsx",
+      "file_type": "code",
+      "source_file": "src/main.tsx",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types",
+      "label": "types.ts",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_documentnode",
+      "label": "DocumentNode",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_conceptnode",
+      "label": "ConceptNode",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_graphnode",
+      "label": "GraphNode",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_graphedge",
+      "label": "GraphEdge",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L21",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_graphdata",
+      "label": "GraphData",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L27",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_chatmessage",
+      "label": "ChatMessage",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L32",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_types_auditlog",
+      "label": "AuditLog",
+      "file_type": "code",
+      "source_file": "src/types.ts",
+      "source_location": "L57",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig",
+      "label": "tsconfig.json",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L2",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_target",
+      "label": "target",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L3",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_experimentaldecorators",
+      "label": "experimentalDecorators",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_usedefineforclassfields",
+      "label": "useDefineForClassFields",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_module",
+      "label": "module",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_lib",
+      "label": "lib",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_skiplibcheck",
+      "label": "skipLibCheck",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_moduleresolution",
+      "label": "moduleResolution",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_isolatedmodules",
+      "label": "isolatedModules",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_moduledetection",
+      "label": "moduleDetection",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_allowjs",
+      "label": "allowJs",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L16",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_jsx",
+      "label": "jsx",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L17",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_paths",
+      "label": "paths",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_paths",
+      "label": "@/*",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_allowimportingtsextensions",
+      "label": "allowImportingTsExtensions",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L23",
+      "_origin": "ast"
+    },
+    {
+      "id": "tsconfig_compileroptions_noemit",
+      "label": "noEmit",
+      "file_type": "code",
+      "source_file": "tsconfig.json",
+      "source_location": "L24",
+      "_origin": "ast"
+    },
+    {
+      "id": "vite_config",
+      "label": "vite.config.ts",
+      "file_type": "code",
+      "source_file": "vite.config.ts",
+      "source_location": "L1",
+      "_origin": "ast"
+    }
+  ],
+  "edges": [
+    {
+      "source": "package",
+      "target": "package_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_private",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_version",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_type",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_scripts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_dev",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_build",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_start",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_clean",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "package_scripts",
+      "target": "package_scripts_lint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "package",
+      "target": "package_dependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_google_genai",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_google_genai",
+      "target": "google_genai",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_tailwindcss_vite",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_tailwindcss_vite",
+      "target": "tailwindcss_vite",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_vitejs_plugin_react",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_vitejs_plugin_react",
+      "target": "vitejs_plugin_react",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_lucide_react",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_lucide_react",
+      "target": "lucide_react",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_react",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_react",
+      "target": "react",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_react_dom",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_react_dom",
+      "target": "react_dom",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_vite",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_vite",
+      "target": "vite",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_express",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_express",
+      "target": "express",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_dotenv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_dotenv",
+      "target": "dotenv",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_dependencies",
+      "target": "package_dependencies_motion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "package_dependencies_motion",
+      "target": "motion",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package",
+      "target": "package_devdependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_types_node",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_types_node",
+      "target": "types_node",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_autoprefixer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_autoprefixer",
+      "target": "autoprefixer",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_esbuild",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_esbuild",
+      "target": "esbuild",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L28",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_tailwindcss",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_tailwindcss",
+      "target": "tailwindcss",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_tsx",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_tsx",
+      "target": "tsx",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_typescript",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_typescript",
+      "target": "typescript",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_vite",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_vite",
+      "target": "vite",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_types_express",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "package_devdependencies_types_express",
+      "target": "types_express",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L33",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "scripts_compile_db",
+      "target": "openpyxl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_compile_db",
+      "target": "os",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_compile_db",
+      "target": "re",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_compile_db",
+      "target": "scripts_compile_db_compile_database",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/compile_db.py",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "os",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_detect",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_extract",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_build",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_cluster",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_analyze",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_report",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "graphify_export",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_run_graphify",
+      "target": "scripts_run_graphify_run_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_graphify.py",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "express",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "vite",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "dotenv",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "genai",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_db",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_db_nodes",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_db_edges",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_db_retrievewithgraph",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "src_types_auditlog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_app",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_auditlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "server_startserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server.ts",
+      "source_location": "L615",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "src_types_graphedge",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "src_types_documentnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "src_types_conceptnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "server_db_nodes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "server_db_edges",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L776",
+      "weight": 1.0
+    },
+    {
+      "source": "server_db",
+      "target": "server_db_retrievewithgraph",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "server/db.ts",
+      "source_location": "L909",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_types_graphdata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_types_chatmessage",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_types_auditlog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "components_conceptgraph",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "components_auditdashboard",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "components_operationalintelligence",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L36",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "components_kbmanager",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app",
+      "target": "src_app_app",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.tsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "src_types_auditlog",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "components_auditdashboard_auditdashboardprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard",
+      "target": "components_auditdashboard_auditdashboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "src_types_graphdata",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "src_types_graphedge",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "components_conceptgraph_simulatednode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "components_conceptgraph_conceptgraphprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph",
+      "target": "components_conceptgraph_conceptgraph",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "components_kbmanager_kbmanagerprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager",
+      "target": "components_kbmanager_kbmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "src_types",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "src_types_graphnode",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "components_operationalintelligence_operationalintelligenceprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence",
+      "target": "components_operationalintelligence_operationalintelligence",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_badge",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_badge",
+      "target": "ui_badge_badgeprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_badge",
+      "target": "ui_badge_badge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Badge.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_button",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_button",
+      "target": "ui_button_buttonprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_button",
+      "target": "ui_button_button",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Button.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_cardprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_card",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_cardheader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_cardtitle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_carddescription",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_cardcontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "ui_card",
+      "target": "ui_card_cardfooter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ui/Card.tsx",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main.tsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "client",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main.tsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "src_app",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main.tsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main",
+      "target": "c_users_adm_desktop_leapy_csbot_leapy_csbot_src_index_css",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main.tsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_documentnode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_conceptnode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_graphnode",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_graphedge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_graphdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_chatmessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "src_types",
+      "target": "src_types_auditlog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types.ts",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig",
+      "target": "tsconfig_compileroptions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_target",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_experimentaldecorators",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_usedefineforclassfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_module",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_lib",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions_lib",
+      "target": "ref_es2022",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "tsconfig_compileroptions_lib",
+      "target": "ref_dom",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "tsconfig_compileroptions_lib",
+      "target": "ref_dom_iterable",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_skiplibcheck",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_moduleresolution",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_isolatedmodules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_moduledetection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_allowjs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_jsx",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_paths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions_paths",
+      "target": "tsconfig_paths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_paths",
+      "target": "ref",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_allowimportingtsextensions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "tsconfig_compileroptions",
+      "target": "tsconfig_compileroptions_noemit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tsconfig.json",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config",
+      "target": "vite",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "vite.config.ts",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config",
+      "target": "plugin_react",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "vite.config.ts",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config",
+      "target": "path",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "vite.config.ts",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config",
+      "target": "vite",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "vite.config.ts",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard_auditdashboardprops",
+      "target": "src_types_auditlog",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "components_auditdashboard_auditdashboardprops",
+      "target": "src_types_graphnode",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/AuditDashboard.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph_conceptgraphprops",
+      "target": "src_types_graphdata",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "components_conceptgraph_conceptgraphprops",
+      "target": "src_types_graphnode",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/ConceptGraph.tsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "components_kbmanager_kbmanagerprops",
+      "target": "src_types_graphnode",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/KBManager.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "components_operationalintelligence_operationalintelligenceprops",
+      "target": "src_types_graphnode",
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/OperationalIntelligence.tsx",
+      "source_location": "L7",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

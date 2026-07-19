@@ -6,10 +6,11 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { NODES, EDGES, retrieveWithGraph } from './server/db.js';
 import { AuditLog } from './src/types.js';
 
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
 
 app.use(express.json());
 
@@ -33,26 +34,182 @@ if (apiKey && apiKey !== "MY_GEMINI_API_KEY") {
   console.warn("⚠️ Warning: GEMINI_API_KEY is not configured or contains placeholder.");
 }
 
+// Helper function to call NVIDIA NIM (compatible with OpenAI format)
+async function callNvidiaNIM(prompt: string, systemInstruction: string, apiKey?: string, model?: string): Promise<string> {
+  const finalKey = apiKey || process.env.NVIDIA_API_KEY;
+  const modelName = model || process.env.NVIDIA_MODEL_NAME || "minimaxai/minimax-m3";
+  const url = "https://integrate.api.nvidia.com/v1/chat/completions";
+
+  console.log(`[NVIDIA NIM] Calling model ${modelName} via OpenAI-compatible endpoint...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${finalKey}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      model: modelName,
+      messages: [
+        { role: 'system', content: systemInstruction },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1, // low temperature for structured and accurate responses
+      top_p: 0.95,
+      max_tokens: 4096
+    })
+  });
+
+  if (!res.ok) {
+    await res.text();
+    throw new Error(`NVIDIA NIM API Error (${res.status})`);
+  }
+
+  const data: any = await res.json();
+  if (data.choices && data.choices[0] && data.choices[0].message) {
+    return data.choices[0].message.content;
+  }
+  throw new Error("Invalid response format from NVIDIA NIM API.");
+}
+
+// Helper function to call OpenAI Chat completions API
+async function callOpenAI(prompt: string, systemInstruction: string, apiKey: string, model?: string): Promise<string> {
+  const modelName = model || "gpt-4o-mini";
+  const url = "https://api.openai.com/v1/chat/completions";
+
+  console.log(`[OpenAI] Calling model ${modelName}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: modelName,
+      messages: [
+        { role: 'system', content: systemInstruction },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1,
+      response_format: { type: "json_object" }
+    })
+  });
+
+  if (!res.ok) {
+    await res.text();
+    throw new Error(`OpenAI API Error (${res.status})`);
+  }
+
+  const data: any = await res.json();
+  if (data.choices && data.choices[0] && data.choices[0].message) {
+    return data.choices[0].message.content;
+  }
+  throw new Error("Invalid response format from OpenAI API.");
+}
+
+// Helper function to call OpenRouter Chat completions API
+async function callOpenRouter(prompt: string, systemInstruction: string, apiKey: string, model?: string): Promise<string> {
+  const modelName = model || "google/gemini-2.5-flash";
+  const url = "https://openrouter.ai/api/v1/chat/completions";
+
+  console.log(`[OpenRouter] Calling model ${modelName}...`);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://github.com/andrecodexvictor/Leapy-CSbot',
+      'X-Title': 'Leapy CSbot'
+    },
+    body: JSON.stringify({
+      model: modelName,
+      messages: [
+        { role: 'system', content: systemInstruction },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.1
+    })
+  });
+
+  if (!res.ok) {
+    await res.text();
+    throw new Error(`OpenRouter API Error (${res.status})`);
+  }
+
+  const data: any = await res.json();
+  if (data.choices && data.choices[0] && data.choices[0].message) {
+    return data.choices[0].message.content;
+  }
+  throw new Error("Invalid response format from OpenRouter API.");
+}
+
+// Helper to robustly parse JSON from LLMs that might wrap outputs in markdown code blocks
+function parseRobustJSON(text: string) {
+  let cleanText = text.trim();
+  if (cleanText.startsWith("```")) {
+    cleanText = cleanText.replace(/^```json\s*/i, "").replace(/^```\s*/, "").replace(/\s*```$/, "");
+  }
+  return JSON.parse(cleanText);
+}
+
+const FALLBACK_SOURCES = ['DOC-008 §8.1', 'DOC-008 §8.2'];
+
+const INTENT_SOURCES: Record<string, string[]> = {
+  empresa_visao_geral: ['DOC-001 §1.1', 'DOC-001 §1.2'],
+  cota_aprendizagem: ['DOC-002 §2.1', 'DOC-002 §2.2', 'DOC-002 §2.4'],
+  elegibilidade_jovem: ['DOC-003 §3.1', 'DOC-003 §3.2', 'DOC-003 §3.3'],
+  operacao_regional: ['DOC-004 §4.1', 'DOC-004 §4.4'],
+  plataforma_dados: ['DOC-005 §5.1', 'DOC-005 §5.4'],
+  resultado_efetivacao: ['DOC-006 §6.1', 'DOC-006 §6.2'],
+  'objeção_comercial': ['DOC-011 §11.2', 'DOC-011 §11.3'],
+  fora_de_escopo: FALLBACK_SOURCES
+};
+
+function documentReference(title: string): string | null {
+  const match = title.match(/^(DOC-(?:SYN-)?\d{3})(?:\s+§\s*([\d.]+))?/i);
+  if (!match) return null;
+  return match[2] ? `${match[1].toUpperCase()} §${match[2]}` : match[1].toUpperCase();
+}
+
+const knownSources = new Set(
+  NODES
+    .filter(node => node.type === 'document')
+    .map(node => documentReference(node.title))
+    .filter((source): source is string => Boolean(source))
+);
+
+function normalizeSources(
+  requestedSources: unknown,
+  documents: Array<{ title: string }>,
+  intent: string | undefined,
+  isFallback: boolean
+): string[] {
+  const requested = Array.isArray(requestedSources)
+    ? requestedSources.filter((source): source is string => typeof source === 'string')
+    : [];
+  const retrieved = documents
+    .map(doc => documentReference(doc.title))
+    .filter((source): source is string => Boolean(source));
+  const preferred = isFallback
+    ? FALLBACK_SOURCES
+    : [...requested, ...(INTENT_SOURCES[intent || ''] || []), ...retrieved];
+
+  const valid = [...new Set(preferred)].filter(source => knownSources.has(source)).slice(0, 3);
+  if (valid.length > 0) return valid;
+
+  return FALLBACK_SOURCES.filter(source => knownSources.has(source)).slice(0, 2);
+}
+
 // API Routes
 
 // 1. Get entire Graph for visualizer (Obsidian-style)
 app.get('/api/graph', (req, res) => {
-  // Return nodes with document contents or filenames stripped out for privacy
-  const clientNodes = NODES.map(node => {
-    if (node.type === 'document') {
-      return {
-        id: node.id,
-        title: node.title,
-        type: node.type,
-        topic: node.topic,
-        keywords: node.keywords
-      };
-    }
-    return node;
-  });
-
+  // Return complete nodes with content included for full visibility in UI
   res.json({
-    nodes: clientNodes,
+    nodes: NODES,
     edges: EDGES
   });
 });
@@ -83,7 +240,7 @@ app.post('/api/feedback', (req, res) => {
 
 // 5. Main Chat API
 app.post('/api/chat', async (req, res) => {
-  const { query } = req.body;
+  const { query, provider, apiKey: clientApiKey, model: clientModel } = req.body;
 
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ error: 'Parâmetro query é obrigatório e deve ser string.' });
@@ -96,6 +253,7 @@ app.post('/api/chat', async (req, res) => {
   // Enriched default block data matching the required structure
   let answerData: {
     respostaObjetiva: string;
+    fontes: string[];
     justificativa: string;
     confianca: 'Alta' | 'Média' | 'Baixa' | 'Nenhuma';
     ressalvas?: string;
@@ -105,19 +263,27 @@ app.post('/api/chat', async (req, res) => {
     resumoCaso?: string;
   } = {
     respostaObjetiva: 'Desculpe, não encontrei evidência ou informação suficiente nos documentos internos da Leapy para responder a esta pergunta.',
-    justificativa: 'O mecanismo de busca por conceitos determinou que a consulta não possui relevância direta com a base documental ou políticas homologadas da plataforma.',
+    fontes: FALLBACK_SOURCES,
+    justificativa: 'O mecanismo de busca por conceitos determinou que a consulta não possui relevância direta com a base documental ou políticas disponíveis no protótipo.',
     confianca: 'Nenhuma',
     ressalvas: 'Para dúvidas comerciais personalizadas ou negociações especiais, consulte a diretoria ou abra um chamado de escalonamento.',
-    classificacaoIntencao: 'Consulta Fora do Escopo',
+    classificacaoIntencao: 'fora_de_escopo',
     sinalizacaoRisco: 'Médio',
     proximaAcaoRecomendada: 'Escalar para o time de Suporte Avançado / Operações Especiais.',
     resumoCaso: 'A pergunta do analista aborda tópicos não mapeados nos playbooks operacionais da Leapy.'
   };
 
   let isFallback = isLowRelevance;
+  let usedProvider = "Simulação Local";
 
-  // If we have retrieved documents and Gemini client is initialized, call it!
-  if (ai && documents.length > 0) {
+  const activeProvider = provider || "simulation";
+  const activeKey = clientApiKey || (activeProvider === "nvidia" ? process.env.NVIDIA_API_KEY : (activeProvider === "gemini" ? process.env.GEMINI_API_KEY : (activeProvider === "openai" ? process.env.OPENAI_API_KEY : (activeProvider === "openrouter" ? process.env.OPENROUTER_API_KEY : ""))));
+  const activeModel = clientModel || (activeProvider === "nvidia" ? "minimaxai/minimax-m3" : (activeProvider === "gemini" ? "gemini-3.5-flash" : (activeProvider === "openai" ? "gpt-4o-mini" : (activeProvider === "openrouter" ? "google/gemini-2.5-flash" : ""))));
+
+  const canUseAI = activeProvider !== "simulation" && (activeKey || (activeProvider === "gemini" && ai !== null));
+
+  // If we have retrieved documents and LLM client is initialized, call it!
+  if (canUseAI && documents.length > 0) {
     try {
       const documentsContext = documents.map((doc, idx) => {
         return `--- DOCUMENTO ${idx + 1}: ${doc.title} ---\n${doc.content}`;
@@ -132,20 +298,32 @@ app.post('/api/chat', async (req, res) => {
       })).join('\n');
 
       const systemInstruction = `Você é o Leapy CSbot, um copiloto inteligente de inteligência operacional interna para o time de Customer Success da Leapy.
-Sua missão é responder perguntas dos analistas de CS com máxima precisão, elegância, e com base estrita no contexto corporativo homologado fornecido.
+Sua missão é responder perguntas dos analistas de CS com máxima precisão, elegância e base estrita no contexto de demonstração fornecido.
 
-Regras fundamentais de comportamento:
+Regras fundamentais de comportamento (conforme DOC-007, DOC-008, DOC-013 e DOC-014):
 1. Responda apenas com base nos documentos fornecidos como contexto. Nunca invente ou extrapole.
-2. Se a informação não estiver presente nos documentos, ou se os documentos forem insuficientes para responder com certeza, você deve obrigatoriamente acionar o FALLBACK:
-   - Defina confianca como "Nenhuma" ou "Baixa".
-   - Defina respostaObjetiva como: "Desculpe, não encontrei evidência ou informação suficiente nos documentos internos da Leapy para responder a esta pergunta."
-   - Defina justificativa indicando o que falta nos documentos.
-3. Classifique a INTENÇÃO com precisão (ex: "Cotas & Regulamentação Legal", "Direitos & Elegibilidade de Benefícios", "Processamento de Férias e Prazos", "Política Regional & Tributária", "Transição de Estagiário para CLT", "Gestão de Objeções de Integração / Segurança").
-4. Classifique a SINALIZAÇÃO DE RISCO ("Baixo", "Médio", "Alto"). Por exemplo: perguntas sobre multas ou processos trabalhistas (como cotas), ou operações fora da área homologada (reajustes fora de SP/RJ/MG/PR) possuem risco Alto ou Médio.
-5. Recomende a PRÓXIMA AÇÃO ideal para o analista executar (ex: "Acionar Suporte Premium", "Solicitar as 2 avaliações semestrais anteriores", "Enviar documentação da API Swagger", "Orientar o cliente a cadastrar dissídio manual").
-6. Escreva um RESUMO DO CASO conciso (máximo 1 frase esbelta e direta).
-7. Nunca mostre ou cite os nomes físicos dos arquivos (ex: '.md', '.xlsx') na respostaObjetiva ou justificativa. Refira-se a eles de forma genérica ("a tabela de elegibilidade de benefícios", "a diretriz de transição de estagiários", etc).
-8. Retorne os dados estritamente no esquema JSON definido.`;
+2. Classifique a INTENÇÃO com precisão usando exatamente uma das seguintes categorias do DOC-012:
+   - "empresa_visao_geral" (sobre o que a Leapy faz e onboarding)
+   - "cota_aprendizagem" (sobre cotas de aprendizes e PCD, limites e obrigações)
+   - "elegibilidade_jovem" (idade, escolaridade e jornada de aprendizes)
+   - "operacao_regional" (sobre abrangência nacional, CCTs regionais e tributação)
+   - "plataforma_dados" (portal, solicitação de férias e fluxos)
+   - "resultado_efetivacao" (dados de efetivação de 48% e ref. institucional)
+   - "objeção_comercial" (objeções de RH e integração legada ERP/LGPD)
+   - "fora_de_escopo" (temas sem base, precificação, prazos contratuais, SLAs)
+3. CITAÇÃO OBRIGATÓRIA (DOC-007, DOC-013): Sempre inclua uma lista de fontes usadas (de 1 a 3 trechos) em um campo separado de fontes, formatadas exatamente como "DOC-XXX §Y.Y" (ex: DOC-001 §1.1).
+4. JUSTIFICATIVA CURTA (DOC-007, DOC-013): Explique em no máximo 2 frases o que as fontes citadas afirmam e por que elas sustentam ou não a resposta.
+5. SINAL DE CONFIANÇA (DOC-014): Defina o grau de confiança:
+   - "Alta": pergunta claramente coberta pela base, sem ambiguidade, fontes convergentes.
+   - "Média": depende de um trecho principal e outro complementar, ou leve ambiguidade.
+   - "Baixa" ou "Nenhuma": base cobre parcialmente, há conflito ou a pergunta é de fora de escopo.
+6. MENSAGEM PADRÃO DE FALLBACK (DOC-008): Se a intenção for "fora_de_escopo", ou a confiança for "Baixa" ou "Nenhuma", ou se faltar base documental de apoio, você deve obrigatoriamente:
+   - Definir respostaObjetiva exatamente como: "Não encontrei base suficiente nos documentos disponíveis para responder com segurança. Posso indicar o que a base cobre e quais pontos exigem confirmação com o time responsável."
+   - Indicar na justificativa o que falta nos documentos.
+7. SINALIZAÇÃO DE RISCO: Classifique o grau de risco em "Baixo", "Médio" ou "Alto". Perguntas sobre processos trabalhistas (cotas), multas ou operações cuja cobertura regional não esteja confirmada possuem risco Alto ou Médio.
+8. RECOMENDE A PRÓXIMA AÇÃO: Indique o passo tático correto para o analista (ex: "Acionar Suporte Premium", "Solicitar avaliações semestrais anteriores", "Enviar documentação da API Swagger", "Orientar o cliente a cadastrar dissídio manual").
+9. Nunca cite os nomes físicos dos arquivos (ex: '.md', '.xlsx') na respostaObjetiva ou justificativa. Refira-se a eles de forma genérica ("a tabela de elegibilidade de benefícios", "a diretriz de transição de estagiários", etc).
+10. Retorne os dados estritamente no esquema JSON definido.`;
 
       const prompt = `PERGUNTA DO ANALISTA:
 "${query}"
@@ -160,79 +338,88 @@ ESTADO DE RELEVÂNCIA DO GRAFO: ${isLowRelevance ? 'BAIXA RELEVÂNCIA' : 'RELEVA
 
 Preencha todos os campos do JSON com base estrita no contexto acima.`;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: prompt,
-        config: {
-          systemInstruction: systemInstruction,
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              respostaObjetiva: {
-                type: Type.STRING,
-                description: 'Resposta limpa, direta, sem jargões desnecessários ou citações de arquivos. Mantém um tom sério, profissional e de utilidade operacional.'
-              },
-              justificativa: {
-                type: Type.STRING,
-                description: 'Explicação baseada estritamente nos fatos do documento (ex: prazos, percentuais) para sustentar a decisão.'
-              },
-              confianca: {
-                type: Type.STRING,
-                description: 'Grau de confiança operacional. Valores: "Alta", "Média", "Baixa", "Nenhuma".'
-              },
-              ressalvas: {
-                type: Type.STRING,
-                description: 'Diferença sutil, limitação contratual ou aviso importante sobre a legislação.'
-              },
-              classificacaoIntencao: {
-                type: Type.STRING,
-                description: 'Intenção da pergunta.'
-              },
-              sinalizacaoRisco: {
-                type: Type.STRING,
-                description: 'Grau de risco da situação. Valores: "Baixo", "Médio", "Alto".'
-              },
-              proximaAcaoRecomendada: {
-                type: Type.STRING,
-                description: 'Passo seguinte tático que o analista de CS deve realizar.'
-              },
-              resumoCaso: {
-                type: Type.STRING,
-                description: 'Linha curta resumindo o cerne do caso do cliente.'
-              }
-            },
-            required: ['respostaObjetiva', 'justificativa', 'confianca', 'classificacaoIntencao', 'sinalizacaoRisco', 'proximaAcaoRecomendada', 'resumoCaso']
-          }
-        }
-      });
+      let text = "";
 
-      const text = response.text;
+      console.log(`\n=== 🧠 INICIANDO ANÁLISE DE CASO CS ===`);
+      console.log(`[PROVEDOR RESOLVIDO] ${activeProvider.toUpperCase()}`);
+      console.log(`[MODELO ENVIADO] ${activeModel}`);
+
+      if (activeProvider === "nvidia") {
+        console.log(`[NVIDIA NIM] Chamando API do console build.nvidia...`);
+        text = await callNvidiaNIM(prompt, systemInstruction, activeKey, activeModel);
+        usedProvider = `NVIDIA NIM (${activeModel})`;
+      } else if (activeProvider === "openai") {
+        if (!activeKey) throw new Error("Chave de API OpenAI ausente.");
+        console.log(`[OpenAI] Chamando API oficial do gpt-4o-mini...`);
+        text = await callOpenAI(prompt, systemInstruction, activeKey, activeModel);
+        usedProvider = `OpenAI (${activeModel})`;
+      } else if (activeProvider === "openrouter") {
+        if (!activeKey) throw new Error("Chave de API OpenRouter ausente.");
+        console.log(`[OpenRouter] Chamando API com modelos gratuitos...`);
+        text = await callOpenRouter(prompt, systemInstruction, activeKey, activeModel);
+        usedProvider = `OpenRouter (${activeModel})`;
+      } else if (activeProvider === "gemini") {
+        const geminiClient = clientApiKey ? new GoogleGenAI({ apiKey: clientApiKey }) : ai;
+        if (!geminiClient) throw new Error("Cliente Gemini não inicializado.");
+        console.log(`[Gemini] Chamando API do Google AI Studio...`);
+        const response = await geminiClient.models.generateContent({
+          model: activeModel || 'gemini-3.5-flash',
+          contents: prompt,
+          config: {
+            systemInstruction: systemInstruction,
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                respostaObjetiva: { type: Type.STRING },
+                fontes: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING }
+                },
+                justificativa: { type: Type.STRING },
+                confianca: { type: Type.STRING },
+                ressalvas: { type: Type.STRING },
+                classificacaoIntencao: { type: Type.STRING },
+                sinalizacaoRisco: { type: Type.STRING },
+                proximaAcaoRecomendada: { type: Type.STRING },
+                resumoCaso: { type: Type.STRING }
+              },
+              required: ['respostaObjetiva', 'fontes', 'justificativa', 'confianca', 'classificacaoIntencao', 'sinalizacaoRisco', 'proximaAcaoRecomendada', 'resumoCaso']
+            }
+          }
+        });
+        text = response.text || "";
+        usedProvider = `Gemini (${activeModel})`;
+      }
+
       if (text) {
         try {
-          const parsed = JSON.parse(text.trim());
+          const parsed = parseRobustJSON(text);
           answerData = {
             respostaObjetiva: parsed.respostaObjetiva || answerData.respostaObjetiva,
+            fontes: Array.isArray(parsed.fontes) ? parsed.fontes : [],
             justificativa: parsed.justificativa || answerData.justificativa,
             confianca: parsed.confianca || answerData.confianca,
             ressalvas: parsed.ressalvas || '',
             classificacaoIntencao: parsed.classificacaoIntencao || 'Consulta Operacional',
             sinalizacaoRisco: parsed.sinalizacaoRisco || 'Baixo',
-            proximaAcaoRecomendada: parsed.proximaAcaoRecomendada || 'Consultar documentação oficial.',
+            proximaAcaoRecomendada: parsed.proximaAcaoRecomendada || 'Consultar a base disponível e validar com o time responsável.',
             resumoCaso: parsed.resumoCaso || 'Dúvida operacional respondida com base em documentos internos.'
           };
           
           if (answerData.confianca === 'Nenhuma' || answerData.confianca === 'Baixa') {
             isFallback = true;
           }
-        } catch (parseError) {
-          console.error("Erro ao parsear JSON do Gemini:", parseError, "Texto bruto:", text);
+          console.log(`[IA ANÁLISE COMPLETA] Sucesso via Provedor: ${usedProvider}`);
+          console.log(`[CONFIDENCE] ${answerData.confianca} | [INTENT] ${answerData.classificacaoIntencao}`);
+        } catch {
+          console.error(`[IA] Resposta inválida recebida do provedor ${activeProvider}.`);
         }
       }
-    } catch (apiError: any) {
-      console.error("Erro ao chamar API do Gemini:", apiError);
+    } catch {
+      console.error(`[IA] Falha ao chamar o provedor ${activeProvider}.`);
       answerData.respostaObjetiva = "Ocorreu um erro técnico ao processar a consulta via inteligência artificial.";
-      answerData.justificativa = apiError?.message || "Erro desconhecido na chamada do modelo.";
+      answerData.justificativa = "O provedor externo não concluiu a solicitação. Nenhuma credencial ou detalhe da resposta foi registrado.";
       answerData.confianca = "Nenhuma";
     }
   } else {
@@ -241,57 +428,70 @@ Preencha todos os campos do JSON com base estrita no contexto acima.`;
       const doc = documents[0];
       const title = doc.title;
       
-      // Determine mocked operational intelligence dynamically based on keywords
-      let intent = 'Consulta Operacional';
+      let intent = 'empresa_visao_geral';
       let risk: 'Baixo' | 'Médio' | 'Alto' = 'Baixo';
       let nextAction = 'Prosseguir com suporte padrão.';
       let summary = `Análise do documento ${title}.`;
       let objResp = '';
       let just = '';
+      let confidence: 'Alta' | 'Média' | 'Baixa' | 'Nenhuma' = 'Alta';
       let ressalvaText = 'Modo Simulação local: as informações refletem o documento original com fidelidade, mas sem recalibração dinâmica.';
 
-      if (query.toLowerCase().includes('cota') || query.toLowerCase().includes('aprendiz') || query.toLowerCase().includes('pcd')) {
-        intent = 'Cotas & Regulamentação Legal';
+      const lowerQuery = query.toLowerCase();
+
+      const hasTerm = (...terms: string[]) => terms.some(term => lowerQuery.includes(term));
+
+      // Check for Out of Scope / Fallback triggers first
+      if (hasTerm('preço', 'preco', 'sla', 'certificação', 'certificacao', 'iso 27001', 'integrar com', 'integração com', 'integracao com', 'zerar a cota em 15 dias')) {
+        intent = 'fora_de_escopo';
+        risk = 'Médio';
+        confidence = 'Nenhuma';
+        objResp = 'Não encontrei base suficiente nos documentos disponíveis para responder com segurança. Posso indicar o que a base cobre e quais pontos exigem confirmação com o time responsável.';
+        just = 'A pergunta solicita dados comerciais sensíveis, prazos contratuais não listados ou integrações complexas ausentes da base de conhecimento.';
+        nextAction = 'Escalar a dúvida para o time de Operações Avançadas ou Vendas.';
+        summary = 'Consulta classificada como fora de escopo por tratar de SLA/pricing/integrações específicas.';
+      } else if (hasTerm('idade', 'faixa etária', 'faixa etaria', 'escolaridade', 'jornada', 'horas por dia', 'estágio', 'estagio', 'estagiário', 'estagiario')) {
+        intent = 'elegibilidade_jovem';
+        risk = 'Médio';
+        objResp = 'A base de demonstração cobre faixa etária, escolaridade e jornada do jovem aprendiz. A regra documentada indica idade entre 14 e 24 anos incompletos, sem limite máximo para PCD, e exige validação do caso concreto pelo time responsável.';
+        just = 'As diretrizes de elegibilidade descrevem idade, vínculo escolar e limites de jornada. Benefícios ou condições específicas de estágio não devem ser inferidos a partir dessas regras.';
+        nextAction = 'Confirmar idade, escolaridade e modalidade do contrato antes de orientar o cliente.';
+        summary = 'Consulta sobre critérios documentados de elegibilidade do jovem aprendiz.';
+      } else if (hasTerm('cota', 'pcd', 'cbo', 'percentual obrigatório', 'percentual obrigatorio')) {
+        intent = 'cota_aprendizagem';
         risk = 'Alto';
-        objResp = 'O cálculo de cotas de Jovens Aprendizes (5% a 15%) e PCD (2% a 5% a partir de 100 funcionários) na Leapy é estritamente informativo e gerado por calculadora automatizada. A Leapy não se responsabiliza por multas ou autuações.';
-        just = 'A Leapy disponibiliza uma calculadora de projeção com base na folha, porém a efetivação real é responsabilidade do cliente. Suporte ativo ou assessoria legal jurídica requer a contratação opcional do Plano Premium.';
-        nextAction = 'Oferecer upgrade para o Plano Premium caso o cliente demande assessoria ativa para preenchimento de cotas.';
-        summary = 'Cliente busca clareza sobre obrigatoriedades legais de contratação de Aprendiz/PCD e o escopo de cobertura da Leapy.';
-      } else if (query.toLowerCase().includes('estágio') || query.toLowerCase().includes('estagiário') || query.toLowerCase().includes('plano de saúde') || query.toLowerCase().includes('gympass')) {
-        intent = 'Direitos & Elegibilidade de Benefícios';
-        risk = 'Médio';
-        objResp = 'Estagiários não possuem direito a plano de saúde, plano odontológico, auxílio-creche ou Gympass. Eles recebem exclusivamente vale-refeição de R$ 22,00 por dia trabalhado e seguro de vida em grupo obrigatório.';
-        just = 'A tabela de elegibilidade reserva plano de saúde (cobertura SulAmérica) e Gympass exclusivamente para colaboradores CLT ativos (plano de saúde exige 90 dias de experiência concluídos; Gympass é liberado no primeiro dia).';
-        nextAction = 'Esclarecer formalmente as limitações de benefícios de estagiários, evitando expectativas contratuais indevidas.';
-        summary = 'Esclarecimento de benefícios de saúde e Gympass para estagiários vs contratados CLT.';
-      } else if (query.toLowerCase().includes('bahia') || query.toLowerCase().includes('ba') || query.toLowerCase().includes('regional') || query.toLowerCase().includes('dissídio')) {
-        intent = 'Política Regional & Tributária';
+        objResp = 'A obrigatoriedade de contratação começa a partir de 7 empregados em funções elegíveis, e o cálculo de cotas de Jovens Aprendizes (5% a 15%) e PCD (2% a 5% a partir de 100 funcionários) na Leapy é estritamente informativo. A Leapy não se responsabiliza por multas.';
+        just = 'O cálculo fornecido no painel é baseado estritamente na folha do cliente e serve como orientação operacional. A validação final e jurídica é de responsabilidade do cliente.';
+        nextAction = 'Orientar o cliente a cruzar CBOs com regras oficiais e sugerir upgrade para o Plano Premium se precisarem de assessoria legal ativa.';
+        summary = 'Dúvida do cliente sobre limites de cotas Aprendiz/PCD e escopo de responsabilidade da calculadora.';
+      } else if (hasTerm('bahia', 'regional', 'dissídio', 'dissidio', 'cct', 'cobertura nacional')) {
+        intent = 'operacao_regional';
         risk = 'Alto';
-        objResp = 'A Leapy processa folhas de pagamento em todo o território nacional, mas o suporte automatizado de convenções coletivas (CCT) e dissídios retroativos está homologado estritamente para SP, RJ, MG e PR. Para a Bahia (BA) ou outros estados, o processo é manual.';
-        just = 'Nas regiões não homologadas, o reajuste salarial e acompanhamento de pautas sindicais devem ser inseridos manualmente pelo gestor do cliente pelo painel "Dissídio Customizado".';
-        nextAction = 'Orientar o cliente a configurar manualmente a convenção coletiva por meio do painel de "Dissídio Customizado".';
-        summary = 'Processamento de folha e suporte para sindicatos/dissídios retroativos fora da região homologada.';
-      } else if (query.toLowerCase().includes('férias') || query.toLowerCase().includes('ferias') || query.toLowerCase().includes('portal')) {
-        intent = 'Processamento de Férias e Prazos';
+        objResp = 'A base de demonstração descreve atendimento nacional com restrições regionais que precisam ser validadas antes de qualquer compromisso de cobertura, turma ou prazo.';
+        just = 'As diretrizes regionais proíbem assumir disponibilidade uniforme em todas as localidades. A condição real depende de confirmação operacional e contratual.';
+        nextAction = 'Registrar cidade, modalidade e demanda e solicitar validação do time de Operações.';
+        summary = 'Consulta de demonstração sobre cobertura e dependências regionais.';
+      } else if (hasTerm('férias', 'ferias', 'portal', 'plataforma', 'painel', 'dados')) {
+        intent = 'plataforma_dados';
         risk = 'Médio';
-        objResp = 'A solicitação de férias pelo colaborador exige 30 dias corridos de antecedência mínima. O fluxo de aprovação é sequencial: o gestor tem até 5 dias úteis para validar, e o RH central tem 3 dias úteis. Caso expire, o sistema cancela automaticamente.';
-        just = 'Regra estrita de parametrização da plataforma self-service para garantir conciliação da folha sem prejuízos de prazos operacionais ou cancelamentos automáticos por inércia de fluxo.';
-        nextAction = 'Alertar o analista para monitorar solicitações pendentes de aprovação pelo gestor do cliente antes da expiração de 5 dias.';
-        summary = 'Prazos operacionais e fluxo sequencial de aprovação de férias no Portal do Colaborador.';
-      } else if (query.toLowerCase().includes('efetivação') || query.toLowerCase().includes('efetivar') || query.toLowerCase().includes('piso')) {
-        intent = 'Transição de Estagiário para CLT';
+        objResp = 'A base apresenta a plataforma como apoio à centralização e ao acompanhamento de informações. Fluxos, módulos e prazos específicos precisam ser confirmados para a operação e o contrato do cliente.';
+        just = 'A proposta documentada é apoiar a gestão com dados sem substituir as decisões do RH. O protótipo não comprova disponibilidade comercial de uma funcionalidade específica.';
+        nextAction = 'Confirmar o fluxo desejado e validar a configuração disponível com Produto ou Implantação.';
+        summary = 'Consulta sobre uso da plataforma e validação de funcionalidades.';
+      } else if (hasTerm('efetivação', 'efetivacao', 'efetivar', '48%', 'resultado')) {
+        intent = 'resultado_efetivacao';
         risk = 'Médio';
-        objResp = 'A efetivação de estagiário exige a abertura de ticket com 15 dias de antecedência, anexo de histórico com média > 7.5, termo de rescisão assinado e obediência ao piso da categoria ou bolsa-auxílio anterior (o que for maior).';
-        just = 'A regra protege o princípio constitucional de irredutibilidade salarial caso o piso da categoria seja inferior ao valor que o estagiário já recebia como bolsa-auxílio.';
-        nextAction = 'Instruir o gestor a anexar as duas avaliações semestrais anteriores com nota média superior a 7.5 no portal.';
-        summary = 'Migração de estagiário para CLT com manutenção de vencimentos baseada na irredutibilidade salarial.';
-      } else if (query.toLowerCase().includes('sênior') || query.toLowerCase().includes('totvs') || query.toLowerCase().includes('sap') || query.toLowerCase().includes('lgpd') || query.toLowerCase().includes('segurança')) {
-        intent = 'Gestão de Objeções de Integração / Segurança';
+        objResp = 'A base cita uma taxa histórica institucional de 48% de efetivação, mas esse indicador não é garantia, meta contratual nem previsão para uma empresa, turma ou jovem.';
+        just = 'O dado serve apenas como referência institucional. A efetivação real depende de vagas, orçamento e desempenho individual.';
+        nextAction = 'Apresentar o número com contexto e evitar qualquer promessa de resultado futuro.';
+        summary = 'Consulta sobre o uso responsável do indicador institucional de efetivação.';
+      } else if (hasTerm('não quero mais um sistema', 'nao quero mais um sistema', 'objeção', 'objecao', 'dá trabalho', 'da trabalho')) {
+        intent = 'objeção_comercial';
         risk = 'Baixo';
-        objResp = 'A Leapy contorna complexidades de ERPs (Totvs, Sênior, SAP) oferecendo APIs RESTful abertas com documentação Swagger e exportadores em CSV/TXT agendáveis sem custo extra. A segurança cumpre a LGPD com criptografia TLS 1.3 e AES-256.';
-        just = 'A infraestrutura utiliza autenticação baseada em perfis (RBAC), criptografia militar em repouso e em trânsito para blindar dados da folha.';
-        nextAction = 'Compartilhar o link de documentação Swagger com a TI do cliente e destacar a conformidade com criptografia militar AES-256.';
-        summary = 'Contorno de objeções de TI referentes à integração legado de ERPs e confidencialidade sob a LGPD.';
+        objResp = 'Diante da objeção a uma nova plataforma, a orientação é mapear quais controles seriam substituídos e qual decisão ficaria mais simples, sem prometer integração, economia ou automação ainda não validadas.';
+        just = 'O playbook recomenda demonstrar centralização e redução de trabalho manual somente no escopo confirmado. Condições técnicas e comerciais exigem validação dos times responsáveis.';
+        nextAction = 'Fazer discovery do processo atual e encaminhar dependências técnicas ou comerciais para validação.';
+        summary = 'Tratamento consultivo de objeção sem converter hipótese de demonstração em promessa.';
       } else {
         objResp = `[Simulação] Respondendo baseado no documento "${doc.title}": ${doc.content.substring(0, 180)}...`;
         just = 'Recuperado com base nas palavras-chave correspondentes entre a pergunta e os metadados do documento.';
@@ -301,8 +501,9 @@ Preencha todos os campos do JSON com base estrita no contexto acima.`;
 
       answerData = {
         respostaObjetiva: objResp,
+        fontes: INTENT_SOURCES[intent] || [],
         justificativa: just,
-        confianca: 'Média',
+        confianca: confidence,
         ressalvas: ressalvaText,
         classificacaoIntencao: intent,
         sinalizacaoRisco: risk,
@@ -314,6 +515,17 @@ Preencha todos os campos do JSON com base estrita no contexto acima.`;
       isFallback = true;
     }
   }
+
+  isFallback = isFallback
+    || answerData.classificacaoIntencao === 'fora_de_escopo'
+    || answerData.confianca === 'Baixa'
+    || answerData.confianca === 'Nenhuma';
+  answerData.fontes = normalizeSources(
+    answerData.fontes,
+    documents,
+    answerData.classificacaoIntencao,
+    isFallback
+  );
 
   // Create audit log entry
   const logEntry: AuditLog = {
@@ -337,7 +549,8 @@ Preencha todos os campos do JSON com base estrita no contexto acima.`;
     blocks: answerData,
     highlightedNodes: [...directMatchedNodeIds, ...expandedNodeIds],
     isFallback: isFallback,
-    logId: logEntry.id
+    logId: logEntry.id,
+    provider: usedProvider
   });
 });
 
@@ -530,7 +743,7 @@ app.post('/api/kb/autodraft', async (req, res) => {
     const prompt = `Você é o redator técnico de Customer Success da Leapy. Um analista relatou que nossa base de conhecimento atual tem uma lacuna e não pôde responder à seguinte dúvida ou cenário do cliente:
 "${query}"
 
-Crie um rascunho de artigo operacional excelente em português que resolva essa dúvida ou contorne a objeção. O artigo deve parecer oficial e integrado às regras de negócio da Leapy.
+Crie um rascunho de demonstração em português que resolva essa dúvida ou contorne a objeção. O texto deve ser claramente apresentado como proposta sujeita a curadoria e não pode parecer política oficial, promessa ou condição comercial da Leapy.
 
 Você deve responder estritamente no formato JSON com as seguintes propriedades:
 1. "title": Um título esbelto e profissional para o novo artigo (ex: "Manual de Tratamento de Objeções de X", "Diretrizes de Parametrização de Y").

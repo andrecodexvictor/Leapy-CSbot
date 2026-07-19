@@ -1,0 +1,27 @@
+# ADR-001: Base System Architecture
+
+## Context and Problem Statement
+We need to define a consistent, scalable architectural style for this project that matches our team size, development speed, and domain complexity.
+
+## Decision Outcome
+* Chosen High-Level Architecture: **monolith**
+* Chosen Internal Design Pattern: **layered**
+
+### Rationale
+* The selected architecture matches our constraints.
+* Alternative high-level options were rejected to avoid over-engineering or integration overhead.
+
+## Rejected Options and Trade-offs
+* **modular-monolith**: Um monólito modular exige maior custo inicial de boilerplate que não se justifica para este projeto de menor complexidade.
+* **microservices**: Rejeitado devido ao alto custo operacional. Recomendado apenas para times grandes (>= 15 membros) com alta complexidade.
+* **event-driven**: Sistemas orientados a eventos trazem complexidade de tracing e consistência eventual que não são justificadas neste escopo.
+* **serverless**: Estruturas serverless criam alto acoplamento com provedores de nuvem e gargalos de cold start que não alinham com o perfil.
+
+## Warnings & Risks
+* No immediate over-engineering warnings detected.
+
+## Status
+Approved
+
+## Date
+2026-07-19

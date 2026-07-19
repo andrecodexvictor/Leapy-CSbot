@@ -6,6 +6,9 @@ export interface DocumentNode {
   topic: string;
   content: string;
   keywords: string[];
+  audience?: string;
+  source_type?: string;
+  updated_at?: string;
 }
 
 export interface ConceptNode {
@@ -37,6 +40,7 @@ export interface ChatMessage {
   // For bot responses, the required visible blocks and operational aids
   blocks?: {
     respostaObjetiva: string;
+    fontes: string[];
     justificativa: string;
     confianca: 'Alta' | 'Média' | 'Baixa' | 'Nenhuma';
     ressalvas?: string;
@@ -49,6 +53,7 @@ export interface ChatMessage {
   // Graph visual highlighting information (internal context, hidden from user bubble but used to highlight the graph)
   highlightedNodes?: string[];
   isFallback?: boolean;
+  provider?: string;
   // User feedback
   feedback?: 'like' | 'dislike';
   feedbackComment?: string;
@@ -62,4 +67,7 @@ export interface AuditLog {
   expandedNodes: string[];
   confidence: string;
   retrievedDocs: string[];
+  blocks?: ChatMessage['blocks'];
+  feedback?: 'like' | 'dislike';
+  feedbackComment?: string;
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, MouseEvent, WheelEvent } from 'react';
 import { GraphData, GraphNode, GraphEdge } from '../types';
-import { Network, FileText, Compass, Sparkles, Sliders, RefreshCw, ZoomIn, ZoomOut, HelpCircle } from 'lucide-react';
+import { Network, FileText, Compass, Sparkles, Sliders, RefreshCw, ZoomIn, ZoomOut, HelpCircle, Filter, Search, X } from 'lucide-react';
 
 interface SimulatedNode {
   id: string;
@@ -9,6 +9,8 @@ interface SimulatedNode {
   topic?: string;
   keywords: string[];
   description?: string;
+  content?: string;
+  sourceType?: string;
   x: number;
   y: number;
   vx: number;
@@ -20,10 +22,28 @@ interface ConceptGraphProps {
   graphData: GraphData;
   highlightedNodeIds: string[];
   onSelectNode: (node: GraphNode) => void;
+  theme?: string;
 }
 
-export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNode }: ConceptGraphProps) {
+export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNode, theme }: ConceptGraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  const isLightTheme = theme === 'theme-slate-light';
+  
+  // Theme-specific color mappings for canvas SVG
+  const textColorMain = isLightTheme ? '#0F172A' : '#F1F5F9';
+  const textColorMuted = isLightTheme ? '#475569' : '#94A3B8';
+  const edgeColorNormal = isLightTheme ? '#CBD5E1' : '#1e293b';
+  const edgeColorHighlighted = isLightTheme ? '#0284C7' : '#38bdf8';
+  const nodeDocFill = isLightTheme ? '#F1F5F9' : '#0B1114';
+  const nodeConceptFill = isLightTheme ? '#E2E8F0' : '#162229';
+  const nodeDocFillHighlighted = isLightTheme ? '#bae6fd' : '#144656';
+  const nodeConceptFillHighlighted = isLightTheme ? '#ddd6fe' : '#2A3C46';
+  
+  const nodeDocStroke = isLightTheme ? '#0284C7' : '#4DBA8A';
+  const nodeConceptStroke = isLightTheme ? '#475569' : '#9AA8AE';
+  const nodeHighlightedStroke = isLightTheme ? '#0284C7' : '#4FB8D6';
+  const gridDotColor = isLightTheme ? '#cbd5e1' : '#24343B';
   const [nodes, setNodes] = useState<SimulatedNode[]>([]);
   const [edges, setEdges] = useState<GraphEdge[]>([]);
   const [draggedNodeId, setDraggedNodeId] = useState<string | null>(null);
@@ -38,6 +58,12 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
   const [selectedTopic, setSelectedTopic] = useState<string>('All');
   const [physicsEnabled, setPhysicsEnabled] = useState(true);
   const [tooltipNode, setTooltipNode] = useState<SimulatedNode | null>(null);
+  const [isCustomFilterOpen, setIsCustomFilterOpen] = useState(false);
+  const [customSearch, setCustomSearch] = useState('');
+  const [customNodeType, setCustomNodeType] = useState<'all' | 'document' | 'concept'>('all');
+  const [customTopics, setCustomTopics] = useState<string[]>([]);
+  const [connectedToDecisionOnly, setConnectedToDecisionOnly] = useState(false);
+  const [syntheticOnly, setSyntheticOnly] = useState(false);
 
   // Initialize nodes in circular layouts
   useEffect(() => {
@@ -53,6 +79,8 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
         topic: node.type === 'document' ? node.topic : 'Conceito',
         keywords: node.keywords || [],
         description: node.type === 'concept' ? node.description : undefined,
+        content: node.type === 'document' ? node.content : undefined,
+        sourceType: node.type === 'document' ? node.source_type : undefined,
         x: Math.cos(angle) * radius,
         y: Math.sin(angle) * radius,
         vx: 0,
@@ -219,21 +247,115 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
 
   const handleZoomIn = () => setZoom(z => Math.min(z * 1.2, 3));
   const handleZoomOut = () => setZoom(z => Math.max(z / 1.2, 0.4));
-  const handleRecenter = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPan({ x: rect.width / 2, y: rect.height / 2 });
-      setZoom(0.85);
-    }
+  const handleResetView = () => {
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+
+    setDraggedNodeId(null);
+    setIsPanning(false);
+    setPanStart({ x: 0, y: 0 });
+    setPan({ x: rect.width / 2, y: rect.height / 2 });
+    setZoom(1);
   };
 
   const [showDocuments, setShowDocuments] = useState(true);
   const topics = ['All', 'Cotas e Legislação', 'Benefícios e RH', 'Operação e Tributário', 'Plataforma e Automação', 'Transição e Carreira', 'Objeções de Vendas e Segurança'];
+  const availableCustomTopics: string[] = Array.from(
+    new Set<string>(
+      nodes
+        .filter(node => node.type === 'document' && Boolean(node.topic))
+        .map(node => node.topic as string)
+    )
+  ).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+  const decisionNeighborhoodIds = new Set<string>(highlightedNodeIds);
+  edges.forEach(edge => {
+    if (highlightedNodeIds.includes(edge.source)) decisionNeighborhoodIds.add(edge.target);
+    if (highlightedNodeIds.includes(edge.target)) decisionNeighborhoodIds.add(edge.source);
+  });
+
+  const toggleCustomTopic = (topic: string) => {
+    setCustomTopics(current => current.includes(topic)
+      ? current.filter(item => item !== topic)
+      : [...current, topic]
+    );
+  };
+
+  const resetCustomFilter = () => {
+    setCustomSearch('');
+    setCustomNodeType('all');
+    setCustomTopics([]);
+    setConnectedToDecisionOnly(false);
+    setSyntheticOnly(false);
+  };
+
+  const resetAllGraphFilters = () => {
+    resetCustomFilter();
+    setSelectedTopic('All');
+    setShowDocuments(true);
+  };
+
+  const customFilterCount = [
+    customSearch.trim().length > 0,
+    customNodeType !== 'all',
+    customTopics.length > 0,
+    connectedToDecisionOnly,
+    syntheticOnly,
+  ].filter(Boolean).length;
+
+  useEffect(() => {
+    if (highlightedNodeIds.length === 0 && connectedToDecisionOnly) {
+      setConnectedToDecisionOnly(false);
+    }
+  }, [highlightedNodeIds.length, connectedToDecisionOnly]);
+
+  // Helper to match database topic strings with selected UI topics
+  const matchTopic = (nodeTopic?: string, selected?: string) => {
+    if (!selected || selected === 'All') return true;
+    if (!nodeTopic) return false;
+    
+    const cleanSelected = selected.toLowerCase();
+    const cleanNode = nodeTopic.toLowerCase();
+    
+    if (cleanSelected.includes('cota') && cleanNode.includes('cota')) return true;
+    if (cleanSelected.includes('benefício') && (cleanNode.includes('beneficio') || cleanNode.includes('rh') || cleanNode.includes('férias'))) return true;
+    if (cleanSelected.includes('opera') && (cleanNode.includes('operacao') || cleanNode.includes('geral') || cleanNode.includes('guard'))) return true;
+    if (cleanSelected.includes('plataforma') && cleanNode.includes('plataforma')) return true;
+    if (cleanSelected.includes('transi') && cleanNode.includes('transicao')) return true;
+    if (cleanSelected.includes('objeç') && (cleanNode.includes('obje') || cleanNode.includes('comercial') || cleanNode.includes('seguranca'))) return true;
+    
+    return false;
+  };
 
   // Filter nodes and edges dynamically
   const filteredNodes = nodes.filter(node => {
-    if (!showDocuments && node.type === 'document') return false;
-    if (selectedTopic !== 'All' && node.topic !== selectedTopic && node.type === 'document') return false;
+    if (node.type === 'document') {
+      if (!showDocuments) return false;
+      if (selectedTopic !== 'All') {
+        return matchTopic(node.topic, selectedTopic);
+      }
+    }
+
+    if (customNodeType !== 'all' && node.type !== customNodeType) return false;
+
+    if (customTopics.length > 0 && (node.type !== 'document' || !node.topic || !customTopics.includes(node.topic))) {
+      return false;
+    }
+
+    if (syntheticOnly && node.sourceType !== 'demonstracao-ficticia') return false;
+
+    if (connectedToDecisionOnly && !decisionNeighborhoodIds.has(node.id)) return false;
+
+    const normalizedSearch = customSearch.trim().toLocaleLowerCase('pt-BR');
+    if (normalizedSearch) {
+      const searchableText = [node.title, node.topic, node.description, node.content, ...node.keywords]
+        .filter(Boolean)
+        .join(' ')
+        .toLocaleLowerCase('pt-BR');
+      if (!searchableText.includes(normalizedSearch)) return false;
+    }
+
     return true;
   });
 
@@ -293,12 +415,12 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
     >
       {/* Header controls */}
       <div className="p-4 border-b app-border bg-[var(--bg-panel)] flex flex-col gap-2.5 z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-300 font-display font-semibold text-xs tracking-wider uppercase">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 text-[var(--text-main)] font-display font-semibold text-xs">
             <Network className="w-4 h-4 text-cyan-400" />
             <span>Mapeamento de Conceitos e Decisões</span>
           </div>
-          <div className="flex gap-1.5 items-center">
+          <div className="flex gap-1.5 items-center flex-wrap justify-end">
             {/* Toggle Documentos / Auditoria */}
             <button 
               onClick={() => setShowDocuments(!showDocuments)}
@@ -314,7 +436,28 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
               <span className="text-[10px] font-bold">Docs (Auditoria)</span>
             </button>
 
-            <div className="h-4 w-px bg-slate-800" />
+            <button
+              type="button"
+              onClick={() => setIsCustomFilterOpen(current => !current)}
+              className={`min-h-7 px-2.5 rounded border transition-colors flex items-center gap-1.5 ${
+                isCustomFilterOpen || customFilterCount > 0
+                  ? 'bg-[var(--accent-glow)] text-[var(--accent-color)] border-[var(--accent-color)]/35'
+                  : 'bg-[var(--bg-body)] text-[var(--text-muted)] app-border hover:bg-[var(--bg-card-hover)]'
+              }`}
+              id="btn-custom-graph-filter"
+              aria-expanded={isCustomFilterOpen}
+              aria-controls="custom-graph-filter-panel"
+            >
+              <Filter className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-semibold">Filtro personalizado</span>
+              {customFilterCount > 0 && (
+                <span className="min-w-4 h-4 px-1 rounded-full bg-[var(--accent-color)] text-white text-[9px] font-semibold flex items-center justify-center">
+                  {customFilterCount}
+                </span>
+              )}
+            </button>
+
+            <div className="h-4 w-px bg-[var(--border-main)]" />
 
             <button 
               onClick={handleZoomIn}
@@ -333,9 +476,11 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
             <button 
-              onClick={handleRecenter}
+              type="button"
+              onClick={handleResetView}
               className="p-1 rounded bg-[var(--bg-body)] hover:bg-[var(--bg-card-hover)] text-[var(--text-main)] transition-colors border app-border"
-              title="Centralizar"
+              title="Restaurar visualização"
+              aria-label="Restaurar posição e zoom do grafo"
               id="btn-recenter"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -369,6 +514,145 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
             </button>
           ))}
         </div>
+
+        {isCustomFilterOpen && (
+          <div
+            id="custom-graph-filter-panel"
+            className="bg-[var(--bg-card)] border app-border rounded-xl overflow-hidden"
+          >
+            <div className="px-3 py-2.5 flex items-center justify-between gap-3 border-b app-border">
+              <div>
+                <p className="text-xs font-semibold text-[var(--text-main)]">Monte sua visão do grafo</p>
+                <p className="text-[11px] text-[var(--text-muted)]">
+                  {filteredNodes.length} de {nodes.length} nós visíveis
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {customFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={resetCustomFilter}
+                    className="min-h-7 px-2.5 rounded-lg text-[11px] font-medium text-[var(--accent-color)] hover:bg-[var(--accent-glow)] transition-colors"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsCustomFilterOpen(false)}
+                  className="w-7 h-7 rounded-lg border app-border bg-[var(--bg-body)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-card-hover)] flex items-center justify-center transition-colors"
+                  aria-label="Fechar filtro personalizado"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-3 space-y-3">
+              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] gap-3 items-end">
+                <label className="space-y-1 min-w-0">
+                  <span className="text-[11px] font-semibold text-[var(--text-main)]">Buscar no conteúdo</span>
+                  <span className="relative block">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)] pointer-events-none" />
+                    <input
+                      type="search"
+                      value={customSearch}
+                      onChange={(event) => setCustomSearch(event.target.value)}
+                      placeholder="Título, palavra-chave ou conteúdo…"
+                      className="w-full min-h-9 pl-9 pr-3 rounded-lg bg-[var(--bg-body)] border app-border text-xs text-[var(--text-main)] placeholder-[var(--text-muted)] focus:border-[var(--accent-color)] focus:outline-none select-text"
+                    />
+                  </span>
+                </label>
+
+                <div className="space-y-1">
+                  <span className="text-[11px] font-semibold text-[var(--text-main)] block">Tipo de nó</span>
+                  <div className="flex p-0.5 rounded-lg bg-[var(--bg-body)] border app-border">
+                    {([
+                      ['all', 'Todos'],
+                      ['document', 'Documentos'],
+                      ['concept', 'Conceitos'],
+                    ] as const).map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => {
+                          setCustomNodeType(value);
+                          if (value === 'document') setShowDocuments(true);
+                        }}
+                        className={`min-h-7 px-2.5 rounded-md text-[11px] font-medium transition-colors ${
+                          customNodeType === value
+                            ? 'bg-[var(--bg-card)] text-[var(--text-main)] border app-border'
+                            : 'text-[var(--text-muted)] hover:text-[var(--text-main)] border border-transparent'
+                        }`}
+                        aria-pressed={customNodeType === value}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-semibold text-[var(--text-main)]">Tópicos da base</span>
+                <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto pr-1">
+                  {availableCustomTopics.map(topic => {
+                    const isSelected = customTopics.includes(topic);
+                    return (
+                      <button
+                        key={topic}
+                        type="button"
+                        onClick={() => {
+                          toggleCustomTopic(topic);
+                          if (!isSelected) {
+                            setCustomNodeType('document');
+                            setShowDocuments(true);
+                          }
+                        }}
+                        className={`min-h-7 px-2.5 rounded-full border text-[11px] font-medium transition-colors ${
+                          isSelected
+                            ? 'bg-[var(--accent-glow)] text-[var(--accent-color)] border-[var(--accent-color)]/35'
+                            : 'bg-[var(--bg-body)] text-[var(--text-muted)] app-border hover:text-[var(--text-main)]'
+                        }`}
+                        aria-pressed={isSelected}
+                      >
+                        {topic}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-x-5 gap-y-2 pt-2 border-t app-border">
+                <label className={`flex items-center gap-2 text-[11px] ${highlightedNodeIds.length === 0 ? 'text-[var(--text-muted)] opacity-60' : 'text-[var(--text-main)]'}`}>
+                  <input
+                    type="checkbox"
+                    checked={connectedToDecisionOnly}
+                    onChange={(event) => setConnectedToDecisionOnly(event.target.checked)}
+                    disabled={highlightedNodeIds.length === 0}
+                    className="w-3.5 h-3.5 accent-[var(--accent-color)]"
+                  />
+                  Conectados à decisão atual
+                </label>
+                <label className="flex items-center gap-2 text-[11px] text-[var(--text-main)]">
+                  <input
+                    type="checkbox"
+                    checked={syntheticOnly}
+                    onChange={(event) => {
+                      setSyntheticOnly(event.target.checked);
+                      if (event.target.checked) {
+                        setCustomNodeType('document');
+                        setShowDocuments(true);
+                      }
+                    }}
+                    className="w-3.5 h-3.5 accent-[var(--accent-color)]"
+                  />
+                  Somente documentos de demonstração
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* SVG Stage */}
@@ -382,6 +666,25 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
         onWheel={handleWheel}
         id="graph-canvas-container"
       >
+        {filteredNodes.length === 0 && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-6 pointer-events-none">
+            <div className="max-w-sm rounded-xl bg-[var(--bg-card)] border app-border p-4 text-center pointer-events-auto">
+              <div className="w-9 h-9 mx-auto rounded-lg bg-[var(--accent-glow)] text-[var(--accent-color)] flex items-center justify-center mb-2.5">
+                <Search className="w-4.5 h-4.5" />
+              </div>
+              <p className="text-sm font-semibold text-[var(--text-main)]">Nenhum nó corresponde ao filtro</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1 mb-3">Remova uma condição ou volte à visão completa do grafo.</p>
+              <button
+                type="button"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={resetAllGraphFilters}
+                className="min-h-9 px-3.5 rounded-lg bg-[var(--accent-color)] text-white text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                Mostrar todos os nós
+              </button>
+            </div>
+          </div>
+        )}
         <svg 
           className="w-full h-full"
           style={{ backgroundImage: 'radial-gradient(var(--border-main, #24343B) 0.75px, transparent 0.75px)', backgroundSize: '20px 20px', opacity: 0.85 }}
@@ -408,10 +711,10 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                     y2={target.y}
                     stroke={
                       isDecisionPath 
-                        ? 'var(--accent-color, #4FB8D6)' 
+                        ? edgeColorHighlighted 
                         : isHighlighted 
-                        ? 'var(--accent-color, #4FB8D6)' 
-                        : 'var(--border-main, #24343B)'
+                        ? edgeColorHighlighted 
+                        : edgeColorNormal
                     }
                     strokeWidth={isDecisionPath ? 2.5 : isHighlighted ? 1.6 : 0.8}
                     strokeOpacity={isDecisionPath ? 0.95 : isHighlighted ? 0.8 : 0.3}
@@ -422,7 +725,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                     <text
                       x={(source.x + target.x) / 2}
                       y={(source.y + target.y) / 2 - 3}
-                      fill="var(--accent-color, #4FB8D6)"
+                      fill={edgeColorHighlighted}
                       fontSize="7.5"
                       fontWeight="600"
                       textAnchor="middle"
@@ -447,7 +750,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                   cy={node.y}
                   r={node.radius + 8}
                   fill="none"
-                  stroke="var(--accent-color, #4FB8D6)"
+                  stroke={edgeColorHighlighted}
                   strokeWidth="1.5"
                   strokeOpacity="0.25"
                   className="animate-pulse"
@@ -461,6 +764,9 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
               const isHighlighted = highlightedNodeIds.includes(node.id);
               const isTopRelevant = top5NodeIds.includes(node.id);
               
+              // Clean DOC prefix from titles in the graph for descritive display
+              const cleanTitle = node.title.split(' — ').length > 1 ? node.title.split(' — ')[1] : node.title;
+
               // Obsidian style: esmaecer nós que não estão destacados se houver uma consulta ativa
               const hasActiveSearch = highlightedNodeIds.length > 0;
               let opacity = 1;
@@ -489,7 +795,7 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                     <circle
                       r={node.radius + 5}
                       fill="transparent"
-                      stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : 'var(--text-muted, #9AA8AE)'}
+                      stroke={isHighlighted ? edgeColorHighlighted : textColorMuted}
                       strokeWidth="1.2"
                       strokeDasharray="2,2"
                       className="animate-spin"
@@ -501,15 +807,15 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                   <circle
                     r={node.radius + 3}
                     fill="transparent"
-                    stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : 'transparent'}
+                    stroke={isHighlighted ? edgeColorHighlighted : 'transparent'}
                     strokeWidth="1"
                   />
 
                   {/* Core circle */}
                   <circle
                     r={node.radius}
-                    fill={isHighlighted ? (node.type === 'document' ? '#144656' : '#2A3C46') : (node.type === 'document' ? 'var(--bg-body, #0B1114)' : 'var(--bg-panel, #162229)')}
-                    stroke={isHighlighted ? 'var(--accent-color, #4FB8D6)' : node.type === 'document' ? 'var(--accent-alt, #4DBA8A)' : 'var(--text-muted, #9AA8AE)'}
+                    fill={isHighlighted ? (node.type === 'document' ? nodeDocFillHighlighted : nodeConceptFillHighlighted) : (node.type === 'document' ? nodeDocFill : nodeConceptFill)}
+                    stroke={isHighlighted ? nodeHighlightedStroke : node.type === 'document' ? nodeDocStroke : nodeConceptStroke}
                     strokeWidth={isHighlighted ? 2 : 1}
                     className="transition-all duration-350"
                   />
@@ -518,12 +824,12 @@ export default function ConceptGraph({ graphData, highlightedNodeIds, onSelectNo
                   <text
                     y={node.radius + 12}
                     textAnchor="middle"
-                    fill={isHighlighted ? 'var(--text-main, #E8EEF0)' : 'var(--text-muted, #9AA8AE)'}
+                    fill={isHighlighted ? textColorMain : textColorMuted}
                     fontSize="8.5"
                     fontWeight={isHighlighted ? '600' : '500'}
                     className="select-none pointer-events-none font-sans"
                   >
-                    {node.title.length > 20 ? node.title.substring(0, 18) + '...' : node.title}
+                    {cleanTitle.length > 20 ? cleanTitle.substring(0, 18) + '...' : cleanTitle}
                   </text>
 
                   {/* Star/Top relevance mini-dot */}

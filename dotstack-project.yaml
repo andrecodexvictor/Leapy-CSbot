@@ -1,0 +1,22 @@
+# dotstack-project.yaml
+# Configuration file for recommending your technology stack.
+
+product:
+  name: "Leapy CSbot"
+  type: "InternalTool"
+
+team:
+  devs: 1
+  experience: "intermediate"
+
+requirements:
+  scale: "medium"
+  latency: "normal"
+  availability: "normal"
+
+constraints:
+  language: "TypeScript"
+  database: "PostgreSQL"
+  cloud: "Vercel"
+  budget: 50
+
