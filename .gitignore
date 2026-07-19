@@ -6,3 +6,16 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Artefatos locais de arquitetura, documentação e análise
+.architecture/
+.architecture.md
+.context/
+.context.md
+.stack/
+.stack.md
+deliverables/
+graphify-out/
+dotarchitecture-input.yaml
+dotarchitecture.yaml
+dotstack-project.yaml
