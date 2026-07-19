@@ -1,9 +1,0 @@
-recommendedArchitecture: monolith
-recommendedInternalPattern: layered
-warnings: []
-observability:
-  - Application Performance Monitoring (APM) para acompanhar gargalos de rota e
-    consumo de CPU
-  - Rotação e agregação local de logs
-  - Deploy Rolling Update simples ou Blue-Green básico
-generatedAt: 2026-07-19
